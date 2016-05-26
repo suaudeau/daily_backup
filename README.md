@@ -13,7 +13,7 @@ daily_backup
                 +--------+    files    +-------+                 +--------+
               local or remote        local or remote               local
                 
-  CONFIGUTATION:  1 - Copy inc_config_TEMPLATE.sh to inc_config.sh
+    CONFIGUTATION:  1 - Copy inc_config_TEMPLATE.sh to inc_config.sh
                     and eventually adjust content
                 2 - Copy backup_exclude_TEMPLATE.txt to backup_exclude.txt
                     and eventually adjust content
@@ -23,7 +23,7 @@ daily_backup
                     7 1 * * * /path_to_script/daily_backup_task.sh
 
       OPTIONS:  
-   REQUIREMENTS:  in_config.sh, inc_lib_backup.sh, conf/
+    REQUIREMENTS:  in_config.sh, inc_lib_backup.sh, conf/
          BUGS:  ---
         NOTES:  This code is partly inspired by http://www.mikerubel.org/computers/rsync_snapshots/
        AUTHOR:  Hervé SUAUDEAU, herve.suaudeau@parisdescartes.fr
