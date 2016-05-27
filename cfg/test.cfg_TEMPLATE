@@ -1,9 +1,10 @@
 # Fichier de configuration de sauvegarde
-# ---------------------------------------
+# ---------------------------------------------
 # Mettre ici les chemins
-# BACKUP doit être un dossier local
-# NATIVE ou WORKING peuvent être vides
-# ---------------------------------------
-NATIVE=root@172.20.62.11:/home/shared/test/native
-WORKING=/home/shared/test/working_copy
-BACKUP=/home/shared/test/backup_copy
+# BACKUP_DIR doit être un dossier local
+# NATIVE_DIR ou WORKING_DIR peuvent être vides
+# ---------------------------------------------
+NATIVE_DIR=root@172.20.62.11:/home/shared/test/native
+WORKING_DIR=/home/shared/test/working_copy
+BACKUP_DIR=/home/shared/test/backup_copy
+EXCLUDES=*~  .svn/ .thumbnails/ .Trash/ *.tmp lost+found/ .cache/ .beagle/ *.noworking/

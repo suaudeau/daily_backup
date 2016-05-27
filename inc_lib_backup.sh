@@ -2,8 +2,8 @@
 #===================================================================================
 #
 # Librairy used by dailybackup_task.sh
-#  
-#=================================================================================== 
+#
+#===================================================================================
 #----------------------------------------------------------------------
 #  create config file if not exist and uses it
 #----------------------------------------------------------------------
@@ -19,7 +19,7 @@ die() { echo "$@" 1>&2 ; exit 1; }
 
 #===  FUNCTION  ================================================================
 #         NAME:  getPathAndCheckInstall
-#  DESCRIPTION:  Récupère le chemin d'une application et vérifie si elle 
+#  DESCRIPTION:  Récupère le chemin d'une application et vérifie si elle
 #                est installée
 #        USAGE:  $MYAPP_PATH = getPathAndCheckInstall myapp
 # PARAMETER  1:  myapp : application
@@ -45,7 +45,7 @@ getPathAndCheckInstall() {
 readonly CAT=$(getPathAndCheckInstall cat)
 readonly CP=$(getPathAndCheckInstall cp)
 readonly CUT=$(getPathAndCheckInstall cut)
-readonly CRONTAB=$(getPathAndCheckInstall crontab)
+#readonly CRONTAB=$(getPathAndCheckInstall crontab)
 readonly DATE=$(getPathAndCheckInstall date)
 readonly ECHO=$(getPathAndCheckInstall echo)
 readonly GREP=$(getPathAndCheckInstall grep)
@@ -56,18 +56,13 @@ readonly RM=$(getPathAndCheckInstall rm)
 readonly RSYNC=$(getPathAndCheckInstall rsync)
 readonly SSH=$(getPathAndCheckInstall ssh)
 readonly TOUCH=$(getPathAndCheckInstall touch)
+readonly MKTEMP=$(getPathAndCheckInstall mktemp)
+readonly BASENAME=$(getPathAndCheckInstall basename)
 
-#----------------------------------------------------------------------
-#  create exclude file if not exist
-#----------------------------------------------------------------------
-if [[ ! -f "${EXCLUDES}" ]]; then
-    ${ECHO} "Create empty file ${EXCLUDES}"
-    ${TOUCH} "${EXCLUDES}"
-fi
 
 #===  FUNCTION  ================================================================
 #         NAME:  isDirectory
-#  DESCRIPTION:  Teste si un chemin est un bien un répertoire 
+#  DESCRIPTION:  Teste si un chemin est un bien un répertoire
 #                (qu'il soit local ou distant via ssh).
 #        USAGE:  if isDirectory $path ; then
 #                   Action si OK
@@ -136,19 +131,20 @@ createDirectory() {
 #  DESCRIPTION:  Synchronise deux répertoires (locaux ou distants).
 #                Contrairement à rsync, peut utiliser deux répertoires distants
 #        USAGE:  updateDirectory source_path destination_path
-# PARAMETER  1:  source_path      : chemin source 
+# PARAMETER  1:  source_path      : chemin source
 #                                   (peut être de la forme login@host:path)
 # PARAMETER  2:  destination_path : chemin destination
 #                                   (peut être de la forme login@host:path)
 #===============================================================================
 updateDirectory() {
     #arguments cannot be empty ==> die
-    if [ -z "${2}" -o -z "${1}" ]; then
+    if [ -z "${3}" -o -z "${2}" -o -z "${1}" ]; then
         die "FATAL ERROR: Bad number of arguments in function updateDirectory"
     fi
 
     local REPERTOIRE_SOURCE="${1}"
     local REPERTOIRE_DESTINATION="${2}"
+    local EXCLUDES="${3}"
 
     # Options de Rsync
     # -----------------------
@@ -183,8 +179,8 @@ updateDirectory() {
 #         NAME:  moveLocalDirectory
 #  DESCRIPTION:  Déplace un répertoire source vers une destination (teste l'existence)
 #        USAGE:  moveLocalDirectory source destination
-# PARAMETER  1:  source      : chemin source 
-# PARAMETER  1:  destination : chemin destination 
+# PARAMETER  1:  source      : chemin source
+# PARAMETER  1:  destination : chemin destination
 #===============================================================================
 moveLocalDirectory() {
     #arguments cannot be empty ==> die
@@ -242,8 +238,8 @@ deleteLocalFile() {
 #         NAME:  replaceLocalDirectory
 #  DESCRIPTION:  Remplace un répertoire par un autre
 #        USAGE:  replaceLocalDirectory source destination
-# PARAMETER  1:  source      : chemin source 
-# PARAMETER  1:  destination : chemin destination 
+# PARAMETER  1:  source      : chemin source
+# PARAMETER  1:  destination : chemin destination
 #===============================================================================
 replaceLocalDirectory() {
     #arguments cannot be empty ==> die
@@ -264,7 +260,7 @@ replaceLocalDirectory() {
 
 #===  FUNCTION  ================================================================
 #         NAME:  copy_from_native_to_working_copy
-#  DESCRIPTION:  Copie des nouveaux fichiers du dossier native vers le 
+#  DESCRIPTION:  Copie des nouveaux fichiers du dossier native vers le
 #                dossier working_copy
 #        USAGE:  copy_from_native_to_working_copy source destination
 # PARAMETER  1:  source      : chemin du native directory
@@ -274,11 +270,13 @@ replaceLocalDirectory() {
 #===============================================================================
 copy_from_native_to_working_copy() {
     #argument can be empty ==> return 0
-    if [ -z "${2}" -o -z "${1}" ]; then
+    if [ -z "${3}" -o -z "${2}" -o -z "${1}" ]; then
         return 0
     fi
     local REPERTOIRE_SOURCE="${1}"
     local REPERTOIRE_DESTINATION="${2}"
+    local EXCLUDES_FILE="${3}"
+
     ${ECHO} "Copie des nouveaux fichiers de \"${REPERTOIRE_SOURCE}\" vers \"${REPERTOIRE_DESTINATION}\"."
 
     # Détecter la présence du volume de source et interrompre l'opération si nécessaire
@@ -295,7 +293,7 @@ copy_from_native_to_working_copy() {
         ${ECHO} "Création du répertoire de destination (${REPERTOIRE_DESTINATION})"
     fi
 
-    updateDirectory "${REPERTOIRE_SOURCE}" "${REPERTOIRE_DESTINATION}"
+    updateDirectory "${REPERTOIRE_SOURCE}" "${REPERTOIRE_DESTINATION}" "${EXCLUDES_FILE}"
     return ${?}
 }
 
@@ -340,7 +338,7 @@ yearlyJob() {
     #----------------------------------------------------------------------
     # step 1: delete the oldest snapshot, if it exists:
     deleteLocalDirectory "${REPERTOIRE_DESTINATION}/year-10"
-    
+
     # step 2: shift the middle snapshots(s) back by one, if they exist
     moveLocalDirectory "${REPERTOIRE_DESTINATION}/year-09" "${REPERTOIRE_DESTINATION}/year-10"
     moveLocalDirectory "${REPERTOIRE_DESTINATION}/year-08" "${REPERTOIRE_DESTINATION}/year-09"
@@ -544,11 +542,13 @@ dailyJob() {
     #  Tests préparatoires
     #----------------------------------------------------------------------
     #arguments can be empty ==> return 0
-    if [ -z "${2}" -o -z "${1}" ]; then
+    if [ -z "${3}" -o -z "${2}" -o -z "${1}" ]; then
         return 0
     fi
     local REPERTOIRE_SOURCE="${1}"
     local REPERTOIRE_DESTINATION="${2}"
+    local EXCLUDES="${3}"
+
     ${ECHO} "Archivage des fichiers de ${REPERTOIRE_SOURCE} vers ${REPERTOIRE_DESTINATION}."
 
     # Détecter la présence du volume de source et interrompre l'opération si nécessaire
@@ -607,7 +607,7 @@ dailyJob() {
 #               If today is the first day of the week  => weekly job
 #               else                                   => daily job
 #
-#        USAGE: getTypeOfDailyJob 
+#        USAGE: getTypeOfDailyJob
 # PARAMETER  1: backup_directory : chemin du backup directory
 # ECHO VALUE:   "week" or "day"
 # RETURN VALUE: none
@@ -631,7 +631,7 @@ getTypeOfDailyJob () {
 #               If today is the first day of the month => monthly job
 #               else                                   => nothing
 #
-#        USAGE: getTypeOfMonthlyJob 
+#        USAGE: getTypeOfMonthlyJob
 # PARAMETER  1: backup_directory : chemin du backup directory
 # ECHO VALUE:   "year", "month" or "none"
 # RETURN VALUE: none
