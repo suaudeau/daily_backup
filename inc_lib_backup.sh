@@ -4,16 +4,8 @@
 # Librairy used by dailybackup_task.sh
 #
 #===================================================================================
-#----------------------------------------------------------------------
-#  create config file if not exist and uses it
-#----------------------------------------------------------------------
-if [ ! -f "$(dirname "${0}")/inc_config.sh" ]; then
-    echo "Copy $(dirname "${0}")/inc_config_TEMPLATE.sh from $(dirname "${0}")/inc_config.sh"
-    cp -a "$(dirname "${0}")/inc_config_TEMPLATE.sh" "$(dirname "${0}")/inc_config.sh"
-fi
-
-#Include global defines
-. "$(dirname "${0}")/inc_config.sh"
+#------ Commandes utilisées par ce script ----
+readonly WHICH=/usr/bin/which
 
 die() { echo "$@" 1>&2 ; exit 1; }
 
@@ -58,7 +50,15 @@ readonly SSH=$(getPathAndCheckInstall ssh)
 readonly TOUCH=$(getPathAndCheckInstall touch)
 readonly MKTEMP=$(getPathAndCheckInstall mktemp)
 readonly BASENAME=$(getPathAndCheckInstall basename)
+readonly DIRNAME=$(getPathAndCheckInstall dirname)
 
+#Define paths and files
+#----------------------
+readonly SCRIPT_PATH=$(${DIRNAME} "${0}")
+#readonly SERVICE=$(${WHICH} service)
+#readonly SERVICE_CRON_RESTART="${SERVICE} cron restart"
+readonly CRON_LOG_FILE=${SCRIPT_PATH}/cronlog.txt
+readonly DATE_LOG_FILE=___date_of_backup___.txt
 
 #===  FUNCTION  ================================================================
 #         NAME:  isDirectory

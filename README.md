@@ -18,10 +18,8 @@ Do a dailly rsync backup and archives local or remote directories.
 
 ###Configuration:
 
-1. Copy inc_config_TEMPLATE.sh to inc_config.sh and eventually adjust content
-2. Create config files (cfg/myname1.cfg) dir based on the
-   example test.cfg_TEMPLATE.
-3. Launch everyday, for instance in cron table:
+1. Create config files (cfg/myname1.cfg) dir based on the example test.cfg_TEMPLATE
+2. Launch everyday, for instance in cron table:
    `7 1 * * * /path_to_script/daily_backup_task.sh`
 
 ###Options:  
@@ -43,6 +41,7 @@ Hervé SUAUDEAU, herve.suaudeau (arob.) parisdescartes.fr (CNRS)
 | 1.0     | 15.05.2016 | First commit into Github. Production version Ubsed from 2010|
 | 1.1     | 27.05.2016 | - Change config file keywords: NATIVE => NATIVE_DIR, WORKING => WORKING_DIR, BACKUP => BACKUP_DIR|
 |         |            | - Suppress global backup_exclude.txt and ad an option EXCLUDE in config file|
+| 1.2     | 27.05.2016 | Symplify use by suppressing inc_config file|
 
 ###Licence
     GPL v3
