@@ -11,6 +11,7 @@
 #  Actions préparatoires
 #----------------------------------------------------------------------
 #Include global functions
+. "$(dirname "${0}")/inc_lib.sh"
 . "$(dirname "${0}")/inc_lib_backup.sh"
 
 # make sure we're running as root

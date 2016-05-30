@@ -25,7 +25,7 @@ Do a dailly rsync backup and archives local or remote directories.
 ###Options:  
 
 ###Requirement:  
-    in_config.sh, inc_lib_backup.sh, conf/
+    inc_lib.sh, inc_lib_backup.sh, conf/
 
 ###Bugs:
 
@@ -39,9 +39,10 @@ Hervé SUAUDEAU, herve.suaudeau (arob.) parisdescartes.fr (CNRS)
 | Version |    Date    | Comments                                              |
 | ------- | ---------- | ----------------------------------------------------- |
 | 1.0     | 15.05.2016 | First commit into Github. Production version Ubsed from 2010|
-| 1.1     | 27.05.2016 | - Change config file keywords: NATIVE => NATIVE_DIR, WORKING => WORKING_DIR, BACKUP => BACKUP_DIR|
-|         |            | - Suppress global backup_exclude.txt and ad an option EXCLUDE in config file|
-| 1.2     | 27.05.2016 | Symplify use by suppressing inc_config file|
+| 1.1     | 27.05.2016 | API: Change config file keywords: NATIVE => NATIVE_DIR, WORKING => WORKING_DIR, BACKUP => BACKUP_DIR|
+|         |            | API: Suppress global backup_exclude.txt and ad an option EXCLUDE in config file|
+| 1.2     | 27.05.2016 | API: Symplify use by suppressing inc_config file|
+| 1.3     | 30.05.2016 | CODE: Separation of inc_lib from inc_lib_backup |
 
 ###Licence
     GPL v3
