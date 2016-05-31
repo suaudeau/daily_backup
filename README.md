@@ -25,7 +25,7 @@ Do a dailly rsync backup and archives local or remote directories.
 ###Options:  
 
 ###Requirement:  
-    inc_lib.sh, inc_lib_backup.sh, conf/
+    lib/inc_lib.sh, lib/inc_lib_backup.sh, conf/
 
 ###Bugs:
 
@@ -43,6 +43,7 @@ Hervé SUAUDEAU, herve.suaudeau (arob.) parisdescartes.fr (CNRS)
 |         |            | API: Suppress global backup_exclude.txt and ad an option EXCLUDE in config file|
 | 1.2     | 27.05.2016 | API: Symplify use by suppressing inc_config file|
 | 1.3     | 30.05.2016 | CODE: Separation of inc_lib from inc_lib_backup |
+| 1.4     | 31.05.2016 | CODE: Move librairies into lib/, improve lib documentation. |
 
 ###Licence
     GPL v3
