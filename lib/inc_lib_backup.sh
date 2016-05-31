@@ -3,13 +3,13 @@
 #         FILE: inc_lib_backup.sh
 #
 #        USAGE: Include in you script with the instruction:
-#               . "$(dirname "${0}")/inc_lib_backup.sh"
+#               . "$(dirname "${0}")/lib/inc_lib_backup.sh"
 #
 #  DESCRIPTION: Librairy used by dailybackup_task.sh
 #
 #      OPTIONS: none
 # REQUIREMENTS: inc_lib.sh v 1.0
-#               . "$(dirname "${0}")/inc_lib.sh"
+#               . "$(dirname "${0}")/lib/inc_lib.sh"
 #
 #         BUGS: ---
 #        NOTES: ---
@@ -23,6 +23,11 @@
 #              | 1.0     | 30.05.2016 | Separation of inc_lib from inc_lib_backup
 #
 #===================================================================================
+
+#Define paths and files
+#----------------------
+readonly CRON_LOG_FILE=${SCRIPT_PATH}/cronlog.txt
+readonly DATE_LOG_FILE=___date_of_backup___.txt
 
 #===  FUNCTION  ================================================================
 #         NAME:  copy_from_native_to_working_copy

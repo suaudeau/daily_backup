@@ -11,8 +11,11 @@
 #  Actions préparatoires
 #----------------------------------------------------------------------
 #Include global functions
-. "$(dirname "${0}")/inc_lib.sh"
-. "$(dirname "${0}")/inc_lib_backup.sh"
+. "$(dirname "${0}")/lib/inc_lib.sh"
+. "$(dirname "${0}")/lib/inc_lib_backup.sh"
+
+#Set flags
+VERBOSE_INFO=true
 
 # make sure we're running as root
 if [ $(${ID} -u) != 0 ]; then

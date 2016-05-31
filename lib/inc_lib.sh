@@ -2,10 +2,30 @@
 #===================================================================================
 #         FILE: inc_lib.sh
 #
-#        USAGE: Include in you script with the instruction:
-#               . "$(dirname "${0}")/inc_lib.sh"
+#        USAGE: Include in you script and set the VERBOSE_INFO flag. Example:
+#               . "$(dirname "${0}")/lib/inc_lib.sh"
+#               VERBOSE_INFO=true
 #
 #  DESCRIPTION: General purpose Bash librairy
+#
+#               Check errors, installtion and verbose info:
+#               -------------------------------------------
+#                   -> die "Fatal error message"
+#                   -> getPathAndCheckInstall ProgramToTestInstallation
+#                   -> verbose_info "Message a afficher"
+#
+#               local or remote manipulation of files :
+#               ---------------------------------------
+#                   -> isDirectory [login@host:]pathToTest
+#                   -> createDirectory [login@host:]pathToCreate
+#                   -> updateDirectory [login1@host1:]source_path [login2@host2:]destination_path
+#
+#               local manipulation of files :
+#               -----------------------------
+#                   -> moveLocalDirectory LocalSource LocalDestination
+#                   -> deleteLocalDirectory repertoire
+#                   -> deleteLocalFile fichier
+#                   -> replaceLocalDirectory source destination
 #
 #      OPTIONS: none
 # REQUIREMENTS: none
@@ -19,6 +39,7 @@
 #              | Version |    Date    | Comments
 #              | ------- | ---------- | --------------------------------------------
 #              | 1.0     | 30.05.2016 | First commit into Github.
+#              | 1.1     | 31.05.2016 | Improve doc and add verbose_info
 #
 #===================================================================================
 #------ Commandes utilisées par ce script ----
@@ -74,18 +95,28 @@ readonly DIRNAME=$(getPathAndCheckInstall dirname)
 readonly SCRIPT_PATH=$(${DIRNAME} "${0}")
 #readonly SERVICE=$(${WHICH} service)
 #readonly SERVICE_CRON_RESTART="${SERVICE} cron restart"
-readonly CRON_LOG_FILE=${SCRIPT_PATH}/cronlog.txt
-readonly DATE_LOG_FILE=___date_of_backup___.txt
+
+#===  FUNCTION  ================================================================
+#         NAME:  verbose_info
+#  DESCRIPTION:  Affiche un texte que si VERBOSE_INFO = true
+#        USAGE:  verbose_info "Message a afficher"
+#===============================================================================
+verbose_info() {
+    if [ ${VERBOSE_INFO} = "true" ]; then
+        ${ECHO} "$*" >&2
+    fi
+}
 
 #===  FUNCTION  ================================================================
 #         NAME:  isDirectory
 #  DESCRIPTION:  Teste si un chemin est un bien un répertoire
 #                (qu'il soit local ou distant via ssh).
-#        USAGE:  if isDirectory $path ; then
+#        USAGE:  isDirectory [login@host:]pathToTest
+#      EXAMPLE:  if isDirectory $pathToTest ; then
 #                   Action si OK
 #                fi
-# PARAMETER  1:  $path : Repertoire à tester
-#                        (peut être de la forme login@host:path)
+# PARAMETER  1:  $pathToTest : Repertoire à tester
+#                        (peut être de la forme login@host:pathToTest)
 #===============================================================================
 isDirectory() {
     #argument cannot be empty ==> die
@@ -113,11 +144,12 @@ isDirectory() {
 #===  FUNCTION  ================================================================
 #         NAME:  createDirectory
 #  DESCRIPTION:  Crée un répertoire (local ou distant) puis teste son existence.
-#        USAGE:  if createDirectory $path ; then
+#        USAGE:  createDirectory [login@host:]pathToCreate
+#      EXAMPLE:  if createDirectory $pathToCreate ; then
 #                   Action si OK
 #                fi
-# PARAMETER  1:  $path : Repertoire à créer puis à tester l'existence
-#                        (peut être de la forme login@host:path)
+# PARAMETER  1:  $pathToCreate : Repertoire à créer puis à tester l'existence
+#                        (peut être de la forme login@host:pathToCreate)
 #===============================================================================
 createDirectory() {
     #argument cannot be empty ==> die
@@ -147,7 +179,7 @@ createDirectory() {
 #         NAME:  updateDirectory
 #  DESCRIPTION:  Synchronise deux répertoires (locaux ou distants).
 #                Contrairement à rsync, peut utiliser deux répertoires distants
-#        USAGE:  updateDirectory source_path destination_path
+#        USAGE:  updateDirectory [login1@host1:]source_path [login2@host2:]destination_path
 # PARAMETER  1:  source_path      : chemin source
 #                                   (peut être de la forme login@host:path)
 # PARAMETER  2:  destination_path : chemin destination
@@ -182,12 +214,12 @@ updateDirectory() {
             #Both remote
             local login_host1=$(${ECHO} "${REPERTOIRE_SOURCE}" | ${CUT} -d ':' -f 1)
             local path1=$(${ECHO} "${REPERTOIRE_SOURCE}" | ${CUT} -d ':' -f 2)
-            ${ECHO} "-->"${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude-from=\"${EXCLUDES}\" \"${path1}/\" \"${REPERTOIRE_DESTINATION}/\""
+            verbose_info "-->"${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude-from=\"${EXCLUDES}\" \"${path1}/\" \"${REPERTOIRE_DESTINATION}/\""
             ${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude-from=\"${EXCLUDES}\" \"${path1}/\" \"${REPERTOIRE_DESTINATION}/\""
             return ${?}
         fi
     fi
-    ${ECHO} "-->${RSYNC} -av --ignore-existing --exclude-from=\"${EXCLUDES}\" \"${REPERTOIRE_SOURCE}/\" \"${REPERTOIRE_DESTINATION}/\""
+    verbose_info "-->${RSYNC} -av --ignore-existing --exclude-from=\"${EXCLUDES}\" \"${REPERTOIRE_SOURCE}/\" \"${REPERTOIRE_DESTINATION}/\""
     ${RSYNC} -av --ignore-existing --exclude-from="${EXCLUDES}" "${REPERTOIRE_SOURCE}/" "${REPERTOIRE_DESTINATION}/"
     return ${?}
 }
@@ -195,9 +227,9 @@ updateDirectory() {
 #===  FUNCTION  ================================================================
 #         NAME:  moveLocalDirectory
 #  DESCRIPTION:  Déplace un répertoire source vers une destination (teste l'existence)
-#        USAGE:  moveLocalDirectory source destination
-# PARAMETER  1:  source      : chemin source
-# PARAMETER  1:  destination : chemin destination
+#        USAGE:  moveLocalDirectory LocalSource LocalDestination
+# PARAMETER  1:  LocalSource      : chemin source local
+# PARAMETER  1:  LocalDestination : chemin destination local
 #===============================================================================
 moveLocalDirectory() {
     #arguments cannot be empty ==> die
@@ -208,7 +240,7 @@ moveLocalDirectory() {
     local source="${1}"
     local dest="${2}"
     if [ -d "${source}" ] ; then            \
-        ${ECHO} "-->"${MV} "${source}" "${dest}" ;  \
+        verbose_info "-->"${MV} "${source}" "${dest}" ;  \
         ${MV} "${source}" "${dest}" ;   \
     fi
 }
@@ -227,7 +259,7 @@ deleteLocalDirectory() {
 
     local dir="${1}"
     if [ -d ${dir} ] ; then         \
-        ${ECHO} "-->${RM} -rf \"${dir}\""; \
+        verbose_info "-->${RM} -rf \"${dir}\""; \
         ${RM} -rf "${dir}" ; \
     fi
 }
@@ -246,7 +278,7 @@ deleteLocalFile() {
 
     local dir="${1}"
     if [ -f ${dir} ] ; then         \
-        ${ECHO} "-->${RM} \"${dir}\""; \
+        verbose_info "-->${RM} \"${dir}\""; \
         ${RM} "${dir}" ; \
     fi
 }
@@ -270,7 +302,7 @@ replaceLocalDirectory() {
         if [ -d "${dest}" ] ; then
             deleteLocalDirectory "${dest}"
         fi
-        ${ECHO} "-->${MV} \"${source}\" \"${dest}\"" ;
+        verbose_info "-->${MV} \"${source}\" \"${dest}\"" ;
         ${MV} "${source}" "${dest}" ;
     fi
 }
