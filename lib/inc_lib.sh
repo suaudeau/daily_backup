@@ -51,7 +51,7 @@ die() { echo "$@" 1>&2 ; exit 1; }
 #         NAME:  getPathAndCheckInstall
 #  DESCRIPTION:  Récupère le chemin d'une application et vérifie si elle
 #                est installée
-#        USAGE:  $MYAPP_PATH = getPathAndCheckInstall myapp
+#        USAGE:  $MYAPP_PATH=$(getPathAndCheckInstall myapp)
 # PARAMETER  1:  myapp : application
 #                        (peut être de la forme login@host:path)
 # RETURN VALUE:  Absolute path of application
