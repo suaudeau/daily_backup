@@ -52,7 +52,7 @@ echoWithFixedsize() {
 
 #===  FUNCTION  ================================================================
 #         NAME:  areFilesHardlinked
-#  DESCRIPTION:  Teste si deux fichiers sont liés par des liens durs (hard link)
+#  DESCRIPTION:  Test if two files are hard linked
 #        USAGE:  areFilesHardlinked "File1" "File2"
 #      EXAMPLE:  if areFilesHardlinked "File1" "File2" ; then
 #                   Action si OK
@@ -77,10 +77,16 @@ areFilesHardlinked() {
     fi
     return 1
 }
-${ECHO} "WARNING: This script will make hard links between files that are identical"
+
+#===========================================================================
+# STEP 1: Display warning and get parameters
+#===========================================================================
+${ECHO} "==========================================================================="
+${ECHO} "WARNING: This script will generate a scipt to  hard links between files that are identical"
 ${ECHO} "         in order to save storage in archived directories."
 ${ECHO} "         Please use only in backup dir where files are NEVER MODIFIED!!!"
 ${ECHO} "         This script may also loose rights and owners of deduplicated files."
+${ECHO} "==========================================================================="
 
 #arguments cannot be empty ==> die
 if [ -z "${1}" ]; then
@@ -88,19 +94,12 @@ if [ -z "${1}" ]; then
 fi
 targetDir=${1}
 
-#if areFilesHardlinked test/01-hl.mp3 "test/01 - Michel Berger & Luc Plamondon - Ouverture.mp3" ; then
-#    echo hard
-#fi
-#if areFilesHardlinked IMG_3609.JPG "IMG_3609 (&)-.JPG" ; then
-#    echo hard
-#fi
-
 #clean temp files
 ${RM} -rf ${DB_DIR} ${DEDUP_INSTRUCTIONS}
 ${MKDIR} -p ${DB_DIR}
 
 #===========================================================================
-# STEP 1: Build a database of files classified by their sizes
+# STEP 2: Build a database of files classified by their sizes
 #===========================================================================
 #for every file su
 ${FIND} "${targetDir}" | while read file; do
@@ -110,15 +109,15 @@ ${FIND} "${targetDir}" | while read file; do
         ${ECHO} "${file}" >> ${DB_DIR}/$(getSizeOfFile "${file}").txt
     fi
 done
-
 #===========================================================================
-# STEP 2: For each different files with the same size, build a sub-database
+# STEP 3: For each different files with the same size, build a sub-database
 #         of files classified by their MD5SUM
 #===========================================================================
+#Read each db file for files with the same size
 ${FIND} "${DB_DIR}" -type f | while read dbfile_size; do
-    # do something with $file
     nbFile=0
     referenceMD5sum=""
+    # For each same size file writen in this DB.
     ${CAT} "${dbfile_size}" | while read file; do
         if [ ${nbFile} == 0 ]; then
             #set the first listed file as referenceFile
@@ -127,12 +126,14 @@ ${FIND} "${DB_DIR}" -type f | while read dbfile_size; do
             #file compared to referenceFile
             if !(areFilesHardlinked "${referenceFile}" "${file}") ; then
                 if [ "${referenceMD5sum}" == "" ]; then
+                    #Md5sum referenceFile if not done before
                     referenceMD5sum=$(${MD5SUM} "${referenceFile}" | ${CUT} -f1 -d " ")
                     size_dir=${DB_DIR}/$(getSizeOfFile "${referenceFile}")
                     ${MKDIR} -p ${size_dir}
                     formated_inode=$(echoWithFixedsize 25 $(getInodeOfFile "${referenceFile}"))
                     ${ECHO} "${formated_inode}${referenceFile}" >> ${size_dir}/${referenceMD5sum}.txt
                 fi
+                #Md5sum current file
                 fileMD5sum=$(${MD5SUM} "${file}" | ${CUT} -f1 -d " ")
                 formated_inode=$(echoWithFixedsize 25 $(getInodeOfFile "${file}"))
                 ${ECHO} "${formated_inode}${file}" >> ${size_dir}/${fileMD5sum}.txt
@@ -143,19 +144,22 @@ ${FIND} "${DB_DIR}" -type f | while read dbfile_size; do
 done
 
 #===========================================================================
-# STEP 3: For each files with the same MD5SUM, make hard link between them.
+# STEP 4: For each files with the same MD5SUM, make hard link between them.
 #===========================================================================
 ${FIND} "${DB_DIR}" -type d | while read dbdir_md5sum; do
     #suppress root dir
     if [ "${dbdir_md5sum}" != "${DB_DIR}" ]; then
         #For all md5 files
         ${FIND} "${dbdir_md5sum}" -type f | while read md5file; do
+            #Suppress lines with the same inode and then suppress inode info
             ${CAT} ${md5file} | ${SORT} | ${UNIQ} -w 25 | ${CUT} -c 26- > ${md5file}.uniq
             nbFile=0
+            #For each files identical with different inodes
             ${CAT} "${md5file}.uniq" | while read file; do
                 if [ ${nbFile} == 0 ]; then
                     referenceFile="${file}"
                 else
+                    #Generate instructions
                     ${ECHO} rm -f \"${file}\" >> ${DEDUP_INSTRUCTIONS}
                     ${ECHO} cp -al \"${referenceFile}\" \"${file}\" >> ${DEDUP_INSTRUCTIONS}
                 fi
@@ -165,4 +169,15 @@ ${FIND} "${DB_DIR}" -type d | while read dbdir_md5sum; do
     fi
 done
 
+#===========================================================================
+# STEP 5: Display instructions
+#===========================================================================
+${ECHO}
+${ECHO} "Here a the instructions to deduplicate:"
+${ECHO} "----------------------------------------------------------"
+
 cat ${DEDUP_INSTRUCTIONS}
+${RM} -rf ${DB_DIR}
+${ECHO} "----------------------------------------------------------"
+${ECHO} "You can launch these instructions with following command:"
+${ECHO} . ${DEDUP_INSTRUCTIONS}
