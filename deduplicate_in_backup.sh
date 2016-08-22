@@ -3,8 +3,42 @@
 #----------------------------------------------------------------------
 #  Preliminary actions
 #----------------------------------------------------------------------
-#Include global functions
-. "$(dirname "${0}")/lib/inc_lib.sh"
+#------ Commandes utilisées par ce script ----
+readonly WHICH=/usr/bin/which
+
+die() { echo "$@" 1>&2 ; exit 1; }
+
+#===  FUNCTION  ================================================================
+#         NAME:  getPathAndCheckInstall
+#  DESCRIPTION:  Récupère le chemin d'une application et vérifie si elle
+#                est installée
+#        USAGE:  $MYAPP_PATH=$(getPathAndCheckInstall myapp)
+# PARAMETER  1:  myapp : application
+#                        (peut être de la forme login@host:path)
+# RETURN VALUE:  Absolute path of application
+#===============================================================================
+getPathAndCheckInstall() {
+    #argument cannot be empty ==> die
+    if [[ -z "${1}" ]]; then
+        die "FATAL ERROR: Use function getPathAndCheckInstall with an argument"
+    fi
+    local application=${1}
+    local APPLICATION_PATH=$(${WHICH} ${application})
+    if [[ ! -x ${APPLICATION_PATH} ]]; then
+        die "FATAL ERROR: ${application} is not installed"
+    fi
+    echo ${APPLICATION_PATH}
+}
+
+#----------------------------------------------------------------------
+#  Get the path of all programs
+#----------------------------------------------------------------------
+readonly CAT=$(getPathAndCheckInstall cat)
+readonly CUT=$(getPathAndCheckInstall cut)
+readonly ECHO=$(getPathAndCheckInstall echo)
+readonly MKDIR=$(getPathAndCheckInstall mkdir)
+readonly RM=$(getPathAndCheckInstall rm)
+readonly MKTEMP=$(getPathAndCheckInstall mktemp)
 
 readonly STAT=$(getPathAndCheckInstall stat)
 readonly FIND=$(getPathAndCheckInstall find)
@@ -15,9 +49,11 @@ readonly SORT=$(getPathAndCheckInstall sort)
 readonly PRINTF=$(getPathAndCheckInstall printf)
 readonly CUT=$(getPathAndCheckInstall cut)
 
-readonly DB_DIR="/tmp/dedup"
-readonly DEDUP_INSTRUCTIONS="/tmp/deduplicate_instructions.sh"
+readonly DB_DIR=$(${MKTEMP} -d --suffix=".dedup")
+readonly DEDUP_INSTRUCTIONS=$(${MKTEMP} --suffix=".deduplicate_instructions.sh")
 
+#Simple functions:
+#-----------------
 getInodeOfFile() {
     ${ECHO} $(${STAT} -c "%i" -- "${1}")
 }
