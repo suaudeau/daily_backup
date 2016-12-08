@@ -59,7 +59,6 @@ for config_file in $(ls "${SCRIPT_PATH}/cfg/"*.cfg); do
     backup_dir=$(${GREP} '^BACKUP_DIR=' "${config_file}" | ${CUT} -d "=" -f 2-)
     excludes_file=$(${MKTEMP})
     ${GREP} '^EXCLUDES=' "${config_file}" | ${CUT} -d "=" -f 2- > ${excludes_file}
-
     if [[ ! -z "${backup_dir}" ]]; then   #do only if backup_dir is defined
         ${ECHO} "Config file: $(${BASENAME} $config_file) : ${working_dir} to ${backup_dir}"
         ${ECHO} "...................................................................................................."

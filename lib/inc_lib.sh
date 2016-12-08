@@ -45,7 +45,9 @@
 #------ Commandes utilisées par ce script ----
 readonly WHICH=/usr/bin/which
 
-die() { echo "$@" 1>&2 ; exit 1; }
+#"quit" replaces "exit 1" to avoid kill connexion to the shell
+quit() { kill -SIGINT $$; }
+die() { echo "$@" 1>&2 ; quit; }
 
 #===  FUNCTION  ================================================================
 #         NAME:  getPathAndCheckInstall

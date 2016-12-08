@@ -44,6 +44,7 @@ Hervé SUAUDEAU, herve.suaudeau (arob.) parisdescartes.fr (CNRS)
 | 1.2     | 27.05.2016 | API: Symplify use by suppressing inc_config file|
 | 1.3     | 30.05.2016 | CODE: Separation of inc_lib from inc_lib_backup |
 | 1.4     | 31.05.2016 | CODE: Move librairies into lib/, improve lib documentation. |
+| 1.5     |  8.12.2016 | FUNC: Add a time stamp file into Working dir. |
 
 ###Licence
     GPL v3

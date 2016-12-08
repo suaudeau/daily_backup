@@ -27,7 +27,8 @@
 #Define paths and files
 #----------------------
 readonly CRON_LOG_FILE=${SCRIPT_PATH}/cronlog.txt
-readonly DATE_LOG_FILE=___date_of_backup___.txt
+readonly DATE_BACKUP_LOG_FILE=___date_of_backup___.txt
+readonly DATE_WORKING_LOG_FILE=___date_of_update___.txt
 
 #===  FUNCTION  ================================================================
 #         NAME:  copy_from_native_to_working_copy
@@ -65,6 +66,14 @@ copy_from_native_to_working_copy() {
     fi
 
     updateDirectory "${REPERTOIRE_SOURCE}" "${REPERTOIRE_DESTINATION}" "${EXCLUDES_FILE}"
+
+    # update the mtime of destination dir to reflect the update time
+    #  and add a time stamp in file
+    ${TOUCH} "${REPERTOIRE_DESTINATION}" ;
+    deleteLocalFile "${REPERTOIRE_DESTINATION}/${DATE_WORKING_LOG_FILE}"
+    ${ECHO} "Date de la dernière mise à jour depuis le dossier 'native' (${REPERTOIRE_SOURCE}):\n" > "${REPERTOIRE_DESTINATION}/${DATE_WORKING_LOG_FILE}"
+    ${ECHO} $(${DATE}) >> "${REPERTOIRE_DESTINATION}/${DATE_WORKING_LOG_FILE}"
+
     return ${?}
 }
 
@@ -364,9 +373,9 @@ dailyJob() {
     # step 5: update the mtime of day-1 to reflect the snapshot time
     #         and add a time stamp in file
     ${TOUCH} "${REPERTOIRE_DESTINATION}/day-1" ;
-    deleteLocalFile "${REPERTOIRE_DESTINATION}/day-1/${DATE_LOG_FILE}"
-    ${ECHO} "Date de la dernière sauvegarde:" > "${REPERTOIRE_DESTINATION}/day-1/${DATE_LOG_FILE}"
-    ${ECHO} $(${DATE}) >> "${REPERTOIRE_DESTINATION}/day-1/${DATE_LOG_FILE}"
+    deleteLocalFile "${REPERTOIRE_DESTINATION}/day-1/${DATE_BACKUP_LOG_FILE}"
+    ${ECHO} "Date de la dernière sauvegarde:" > "${REPERTOIRE_DESTINATION}/day-1/${DATE_BACKUP_LOG_FILE}"
+    ${ECHO} $(${DATE}) >> "${REPERTOIRE_DESTINATION}/day-1/${DATE_BACKUP_LOG_FILE}"
 
     return 0
 }
