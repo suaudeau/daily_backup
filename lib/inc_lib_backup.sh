@@ -31,6 +31,27 @@ readonly DATE_BACKUP_LOG_FILE=___date_of_backup___.txt
 readonly DATE_WORKING_LOG_FILE=___date_of_update___.txt
 
 #===  FUNCTION  ================================================================
+#         NAME:  get_last_timestamp
+#  DESCRIPTION:  récupère le timestamp de la dernière sauvegarde
+#        USAGE:  get_last_timestamp backup_or_working_dir
+# PARAMETER  1:  backup_or_working_dir : chemin du backup directory ou working directory
+# RETURN VALUE:  timestamp présent dans le fichier ___date_of_backup___.txt ou ___date_of_update___.txt
+#===============================================================================
+get_last_timestamp() {
+  #argument can be empty ==> return 0
+  if [ -z "${1}" ]; then
+      return 0
+  fi
+  local BACKUP_OR_WORKING_DIR="${1}"
+  timestamp=$(${CAT} "${BACKUP_OR_WORKING_DIR}/day-1/DATE_BACKUP_LOG_FILE" "${BACKUP_OR_WORKING_DIR}/DATE_WORKING_LOG_FILE" 2> /dev/null  | ${GREP} "^timestamp : " | ${CUT} -d " " -f 3)
+  if [ ! -z "${timestamp}" ]; then
+      ${ECHO} ${timestamp}
+      return 0
+  else
+      return -1
+  fi
+}
+#===  FUNCTION  ================================================================
 #         NAME:  copy_from_native_to_working_copy
 #  DESCRIPTION:  Copie des nouveaux fichiers du dossier native vers le
 #                dossier working_copy
@@ -73,7 +94,7 @@ copy_from_native_to_working_copy() {
     deleteLocalFile "${REPERTOIRE_DESTINATION}/${DATE_WORKING_LOG_FILE}"
     ${ECHO} "Date de la dernière mise à jour depuis le dossier 'native' (${REPERTOIRE_SOURCE}):\n" > "${REPERTOIRE_DESTINATION}/${DATE_WORKING_LOG_FILE}"
     ${ECHO} $(${DATE}) >> "${REPERTOIRE_DESTINATION}/${DATE_WORKING_LOG_FILE}"
-
+    ${ECHO} "timestamp : $(${DATE} +%s)" >> "${REPERTOIRE_DESTINATION}/${DATE_WORKING_LOG_FILE}"
     return ${?}
 }
 
@@ -376,7 +397,7 @@ dailyJob() {
     deleteLocalFile "${REPERTOIRE_DESTINATION}/day-1/${DATE_BACKUP_LOG_FILE}"
     ${ECHO} "Date de la dernière sauvegarde:" > "${REPERTOIRE_DESTINATION}/day-1/${DATE_BACKUP_LOG_FILE}"
     ${ECHO} $(${DATE}) >> "${REPERTOIRE_DESTINATION}/day-1/${DATE_BACKUP_LOG_FILE}"
-
+    ${ECHO} "timestamp : $(${DATE} +%s)" >> "${REPERTOIRE_DESTINATION}/day-1/${DATE_BACKUP_LOG_FILE}"
     return 0
 }
 
