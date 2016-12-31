@@ -43,7 +43,7 @@ get_last_timestamp() {
       return 0
   fi
   local BACKUP_OR_WORKING_DIR="${1}"
-  timestamp=$(${CAT} "${BACKUP_OR_WORKING_DIR}/day-1/DATE_BACKUP_LOG_FILE" "${BACKUP_OR_WORKING_DIR}/DATE_WORKING_LOG_FILE" 2> /dev/null  | ${GREP} "^timestamp : " | ${CUT} -d " " -f 3)
+  local timestamp=$(${CAT} "${BACKUP_OR_WORKING_DIR}/day-1/${DATE_BACKUP_LOG_FILE}" "${BACKUP_OR_WORKING_DIR}/${DATE_WORKING_LOG_FILE}" 2> /dev/null  | ${GREP} "^timestamp : " | ${CUT} -d " " -f 3)
   if [ ! -z "${timestamp}" ]; then
       ${ECHO} ${timestamp}
       return 0
@@ -405,53 +405,113 @@ dailyJob() {
 #===  FUNCTION  ================================================================
 #         NAME: getTypeOfDailyJob
 #  DESCRIPTION: Get the date and analyse what type of daily job sould be done
-#               If today is the first day of the week  => weekly job
-#               else                                   => daily job
 #
-#        USAGE: getTypeOfDailyJob
+#               If today is the first day of the week
+#                  or last backup was last week             => weekly job
+#               else if last backup was yesterday of before => daily job
+#               else                                        => do nothing
+#
+#        USAGE: getTypeOfDailyJob backup_directory
 # PARAMETER  1: backup_directory : chemin du backup directory
-# ECHO VALUE:   "week" or "day"
+# ECHO VALUE:   "week", "day" or "none"
 # RETURN VALUE: none
 #===============================================================================
 getTypeOfDailyJob () {
-    local ifStart=$(${DATE} '+%u')
-    if [ "${ifStart}" == 1 ]; then
-        #If first day of week
-        ${ECHO} 'week'
-        return
-    fi
+  #argument can be empty ==> return 0
+  if [ -z "${1}" ]; then
+      return 0    return
 
-    ${ECHO} 'day'
+  fi
+  local BACKUP_DIR="${1}"
+  local day_of_the_week=$(${DATE} '+%u')
+  if [ "${day_of_the_week}" == 1 ]; then
+      #If first day of week
+      ${ECHO} 'week'
+      return
+  fi
+  local last_backup_timestamp=$(get_last_timestamp ${BACKUP_DIR})
+  local current_timestamp=$(${DATE} +%s)
+  if [[ ! -z "${last_backup_timestamp}" ]]; then
+    local current_week=$(${DATE} -d @${current_timestamp} +%W)
+    local last_backup_week=$(${DATE} -d @${last_backup_timestamp} +%W)
+    local current_day=$(${DATE} -d @${current_timestamp} +%j)
+    local last_backup_day=$(${DATE} -d @${last_backup_timestamp} +%j)
+    if [[ "${last_backup_week}" != "${current_week}" ]]; then
+      #if last backup was last week
+      ${ECHO} 'week'
+      return
+    fi
+    if [[ "${last_backup_day}" != "${current_day}" ]]; then
+      #if last backup was yesterday of before
+      ${ECHO} 'day'
+      return
+    fi
+    #Backup was not last day => Do nothing
+    ${ECHO} 'none'
     return
+  fi
+  #last_backup_timestamp not recognized
+  ${ECHO} 'day'
+  return
 }
 
 #===  FUNCTION  ================================================================
 #         NAME: getTypeOfMonthlyJob
 #  DESCRIPTION: Get the date and analyse what type of monthly job sould be done
-#               If today is the first day of the year  => yearly job
-#               If today is the first day of the month => monthly job
-#               else                                   => nothing
+#               If last backup was yesterday of before
+#                 If today is the first day of the year
+#                   or if last backup was last year      => yearly job
+#                 If today is the first day of the month
+#                   or if last backup was last month     => monthly job
+#                 else                                   => nothing
+#               else                                     => nothing
 #
-#        USAGE: getTypeOfMonthlyJob
+#        USAGE: getTypeOfMonthlyJob backup_directory
 # PARAMETER  1: backup_directory : chemin du backup directory
 # ECHO VALUE:   "year", "month" or "none"
 # RETURN VALUE: none
 #===============================================================================
 getTypeOfMonthlyJob () {
-    local ifStart=$(${DATE} '+%j')
-    if [ "${ifStart}" == 001 ]; then
-        #if first day of year
-        ${ECHO} 'year'
-        return
+    #argument can be empty ==> return 0
+    if [ -z "${1}" ]; then
+        return 0
     fi
-
-    local ifStart=$(${DATE} '+%d')
-    if [ "${ifStart}" == 01 ]; then
-        #If first day of month
-        ${ECHO} 'month'
-        return
+    local BACKUP_DIR="${1}"
+    local day_of_the_year=$(${DATE} '+%j')
+    local last_backup_timestamp=$(get_last_timestamp ${BACKUP_DIR})
+    local current_timestamp=$(${DATE} +%s)
+    if [[ ! -z "${last_backup_timestamp}" ]]; then
+        local current_year=$(${DATE} -d @${current_timestamp} +%Y)
+        local last_backup_year=$(${DATE} -d @${last_backup_timestamp} +%Y)
+        local current_month=$(${DATE} -d @${current_timestamp} +%m)
+        local last_backup_month=$(${DATE} -d @${last_backup_timestamp} +%m)
+        local current_day=$(${DATE} -d @${current_timestamp} +%j)
+        local last_backup_day=$(${DATE} -d @${last_backup_timestamp} +%j)
+        if [[ "${last_backup_day}" != "${current_day}" ]]; then
+            #if last backup was yesterday of before
+            if [ "${day_of_the_year}" == 001 ]; then
+                #if first day of year
+                ${ECHO} 'year'
+                return
+            fi
+            if [[ "${last_backup_year}" != "${current_year}" ]]; then
+                #if last backup was last year
+                ${ECHO} 'year'
+                return
+            fi
+            local day_of_the_month=$(${DATE} '+%d')
+            if [ "${day_of_the_month}" == 01 ]; then
+                #If first day of month
+                ${ECHO} 'month'
+                return
+            fi
+            if [[ "${last_backup_month}" != "${current_month}" ]]; then
+                #if last backup was last month
+                ${ECHO} 'month'
+                return
+            fi
+        fi
     fi
-
     ${ECHO} 'none'
     return
 }

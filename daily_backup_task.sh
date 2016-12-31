@@ -49,9 +49,6 @@ done
 ${ECHO}
 ${ECHO} "========================================="
 ${ECHO} "STEP 2 : Do daily rotations and copies"
-typeOfDailyJob=$(getTypeOfDailyJob)
-typeOfMonthlyJob=$(getTypeOfMonthlyJob)
-echo "Type of job : $typeOfDailyJob + $typeOfMonthlyJob"
 ${ECHO} "========================================="
 
 for config_file in $(ls "${SCRIPT_PATH}/cfg/"*.cfg); do
@@ -60,6 +57,9 @@ for config_file in $(ls "${SCRIPT_PATH}/cfg/"*.cfg); do
     excludes_file=$(${MKTEMP})
     ${GREP} '^EXCLUDES=' "${config_file}" | ${CUT} -d "=" -f 2- > ${excludes_file}
     if [[ ! -z "${backup_dir}" ]]; then   #do only if backup_dir is defined
+        typeOfDailyJob=$(getTypeOfDailyJob ${backup_dir})
+        typeOfMonthlyJob=$(getTypeOfMonthlyJob ${backup_dir})
+        echo "Type of job : $typeOfDailyJob + $typeOfMonthlyJob"
         ${ECHO} "Config file: $(${BASENAME} $config_file) : ${working_dir} to ${backup_dir}"
         ${ECHO} "...................................................................................................."
         if [ $typeOfMonthlyJob == "month" ]; then
