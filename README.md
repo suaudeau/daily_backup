@@ -17,6 +17,7 @@ Do a dailly rsync backup and archives local or remote directories.
               local or remote        local or remote               local
 - Authorize irregular backups in time: if backup has not been done since several
   days, weeks, months... do the apropriate short, medium or long term backup.
+  Do not backup if it has already been done since the day before.
 
 ###Configuration:
 
