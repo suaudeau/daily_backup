@@ -15,6 +15,8 @@ Do a dailly rsync backup and archives local or remote directories.
                 |  dir   |    new      |  dir  |     archive     |  dir   |
                 +--------+    files    +-------+                 +--------+
               local or remote        local or remote               local
+- Authorize irregular backups in time: if backup has not been done since several
+  days, weeks, months... do the apropriate short, medium or long term backup.
 
 ###Configuration:
 
@@ -45,6 +47,7 @@ Hervé SUAUDEAU, herve.suaudeau (arob.) parisdescartes.fr (CNRS)
 | 1.3     | 30.05.2016 | CODE: Separation of inc_lib from inc_lib_backup |
 | 1.4     | 31.05.2016 | CODE: Move librairies into lib/, improve lib documentation. |
 | 1.5     |  8.12.2016 | FUNC: Add a time stamp file into Working dir. |
+| 1.6     |  1.01.2017 | FUNC: Authorize irregular backups in time. |
 
 ###Licence
     GPL v3
