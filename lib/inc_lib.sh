@@ -210,7 +210,10 @@ updateDirectory() {
     # -n, --dry-run               montre ce qui aurait été transféré
     #     --ignore-existing       ignore les fichiers qui existent déjà
     #     --cvs-exclude
-    #
+    # -H copie les liens en dur
+    # --delete supprime fichiers qui sont effacés de la source
+    # --force supprime les dossiers effacés de la source
+    # --stats Affiche les statistiques sur les fichiers.
     if [[ "${REPERTOIRE_SOURCE}" =~ .+@.+:.+ ]]; then
         if [[ "${REPERTOIRE_DESTINATION}" =~ .+@.+:.+ ]]; then
             #Both remote

@@ -388,8 +388,17 @@ dailyJob() {
     # rsync behaves like cp --remove-destination by default, so the destination
     # is unlinked first.  If it were not so, this would copy over the other
     # snapshot(s) too!
-    ${ECHO} "-->${RSYNC} -va --delete --delete-excluded --exclude-from="${EXCLUDES}" \"${REPERTOIRE_SOURCE}/\" \"${REPERTOIRE_DESTINATION}/day-1/\"" ;
-    ${RSYNC} -av --delete --delete-excluded --exclude-from="${EXCLUDES}" "${REPERTOIRE_SOURCE}/" "${REPERTOIRE_DESTINATION}/day-1/"
+    # Rsync otions:
+    #               -a = -rlptgoD
+    #                       -r (récusif) -l (copie liens symboliques) -p (copie permissions)
+    #                       -t (copie dates modif) -g (copie groupe) -o (copie propriétaire)
+    #                       -D (copie fichiers en mode bloc, carractère et fichiers spéciaux)
+    #               -H copie les liens en dur
+    #               --delete supprime fichiers qui sont effacés de la source
+    #               --force supprime les dossiers effacés de la source
+    #               --stats Affiche les statistiques sur les fichiers.
+    ${ECHO} "-->${RSYNC} -va --delete --force --delete-excluded --exclude-from="${EXCLUDES}" \"${REPERTOIRE_SOURCE}/\" \"${REPERTOIRE_DESTINATION}/day-1/\"" ;
+    ${RSYNC} -av --delete --force --delete-excluded --exclude-from="${EXCLUDES}" "${REPERTOIRE_SOURCE}/" "${REPERTOIRE_DESTINATION}/day-1/"
 
     # step 5: update the mtime of day-1 to reflect the snapshot time
     #         and add a time stamp in file
