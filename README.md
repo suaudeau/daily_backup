@@ -1,7 +1,7 @@
 daily_backup
 ===========
 
-###Description:
+### Description:
 
 Do a dailly rsync backup and archives local or remote directories.
 - Can copy through network via SSH
@@ -19,26 +19,26 @@ Do a dailly rsync backup and archives local or remote directories.
   days, weeks, months... do the apropriate short, medium or long term backup.
   Do not backup if it has already been done since the day before.
 
-###Configuration:
+### Configuration:
 
 1. Create config files (cfg/myname1.cfg) dir based on the example test.cfg_TEMPLATE
 2. Launch everyday, for instance in cron table:
    `7 1 * * * /path_to_script/daily_backup_task.sh`
 
-###Options:  
+### Options:  
 
-###Requirement:  
+### Requirement:  
     lib/inc_lib.sh, lib/inc_lib_backup.sh, conf/
 
-###Bugs:
+### Bugs:
 
-###Notes:  
+### Notes:  
 This code is partly inspired by http://www.mikerubel.org/computers/rsync_snapshots/
 
-###Author:  
+### Author:  
 Hervé SUAUDEAU, herve.suaudeau (arob.) parisdescartes.fr (CNRS)
 
-###Revisions:
+### Revisions:
 | Version |    Date    | Comments                                              |
 | ------- | ---------- | ----------------------------------------------------- |
 | 1.0     | 15.05.2016 | First commit into Github. Production version Ubsed from 2010|
@@ -50,5 +50,5 @@ Hervé SUAUDEAU, herve.suaudeau (arob.) parisdescartes.fr (CNRS)
 | 1.5     |  8.12.2016 | FUNC: Add a time stamp file into Working dir. |
 | 1.6     |  1.01.2017 | FUNC: Authorize irregular backups in time. |
 
-###Licence
+### Licence
     GPL v3
