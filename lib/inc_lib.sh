@@ -91,6 +91,7 @@ readonly TOUCH=$(getPathAndCheckInstall touch)
 readonly MKTEMP=$(getPathAndCheckInstall mktemp)
 readonly BASENAME=$(getPathAndCheckInstall basename)
 readonly DIRNAME=$(getPathAndCheckInstall dirname)
+readonly TAIL=$(getPathAndCheckInstall tail)
 
 #Define paths and files
 #----------------------

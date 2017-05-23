@@ -43,7 +43,7 @@ get_last_timestamp() {
       return 0
   fi
   local BACKUP_OR_WORKING_DIR="${1}"
-  local timestamp=$(${CAT} "${BACKUP_OR_WORKING_DIR}/day-1/${DATE_BACKUP_LOG_FILE}" "${BACKUP_OR_WORKING_DIR}/${DATE_WORKING_LOG_FILE}" 2> /dev/null  | ${GREP} "^timestamp : " | ${CUT} -d " " -f 3)
+  local timestamp=$(${CAT} "${BACKUP_OR_WORKING_DIR}/day-1/${DATE_BACKUP_LOG_FILE}" "${BACKUP_OR_WORKING_DIR}/${DATE_WORKING_LOG_FILE}" 2> /dev/null  | ${GREP} "^timestamp : " | ${CUT} -d " " -f 3| ${TAIL} -n 1)
   if [ ! -z "${timestamp}" ]; then
       ${ECHO} ${timestamp}
       return 0
