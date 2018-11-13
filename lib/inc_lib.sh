@@ -62,13 +62,15 @@ getPathAndCheckInstall() {
     #argument cannot be empty ==> die
     if [[ -z "${1}" ]]; then
         die "FATAL ERROR: Use function getPathAndCheckInstall with an argument"
+    else
+      local application="${1}"
+      local APPLICATION_PATH=$(${WHICH} "${application}")
+      if [[ ! -x "${APPLICATION_PATH}" ]]; then
+          die "FATAL ERROR: ${application} is not installed"
+      else
+        echo "${APPLICATION_PATH}"
+      fi
     fi
-    local application=${1}
-    local APPLICATION_PATH=$(${WHICH} ${application})
-    if [[ ! -x ${APPLICATION_PATH} ]]; then
-        die "FATAL ERROR: ${application} is not installed"
-    fi
-    echo ${APPLICATION_PATH}
 }
 
 #----------------------------------------------------------------------
@@ -128,16 +130,16 @@ isDirectory() {
     fi
 
     local source=${1}
-    if [[ ${1} =~ .+@.+:.+ ]]; then
+    if [[ "${1}" =~ .+@.+:.+ ]]; then
         #remote path : login@host:path
         local login_host=$(${ECHO} "${1}" | ${CUT} -d ':' -f 1)
         local remote_path=$(${ECHO} "${1}" | ${CUT} -d ':' -f 2)
         isDir=$(${SSH} "${login_host}" "if [ -d '${remote_path}' ] ; then ${ECHO} '0'; fi")
-        if [[ ${isDir} == '0' ]]; then
+        if [[ "${isDir}" == '0' ]]; then
             return 0
         fi
     else
-        if [ -d ${source} ] ; then
+        if [ -d "${source}" ] ; then
             return 0
         fi
     fi
