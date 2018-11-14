@@ -18,7 +18,7 @@
 #               ---------------------------------------
 #                   -> isDirectory [login@host:]pathToTest
 #                   -> createDirectory [login@host:]pathToCreate
-#                   -> updateDirectory [login1@host1:]source_path [login2@host2:]destination_path
+#                   -> updateDirectory [login1@host1:]source_path [login2@host2:]destination_path exclude_file
 #
 #               local manipulation of files :
 #               -----------------------------
@@ -107,7 +107,7 @@ readonly SCRIPT_PATH=$(${DIRNAME} "${0}")
 #        USAGE:  verbose_info "Message a afficher"
 #===============================================================================
 verbose_info() {
-    if [ ${VERBOSE_INFO} = "true" ]; then
+    if [[ "${VERBOSE_INFO}" == "true" ]]; then
         ${ECHO} "$*" >&2
     fi
 }
@@ -125,7 +125,7 @@ verbose_info() {
 #===============================================================================
 isDirectory() {
     #argument cannot be empty ==> die
-    if [ -z "${1}" ]; then
+    if [[ -z "${1}" ]]; then
          die "FATAL ERROR: Bad number of arguments in function isDirectory"
     fi
 
@@ -139,7 +139,7 @@ isDirectory() {
             return 0
         fi
     else
-        if [ -d "${source}" ] ; then
+        if [[ -d "${source}" ]] ; then
             return 0
         fi
     fi
@@ -158,7 +158,7 @@ isDirectory() {
 #===============================================================================
 createDirectory() {
     #argument cannot be empty ==> die
-    if [ -z "${1}" ]; then
+    if [[ -z "${1}" ]]; then
         die "FATAL ERROR: Bad number of arguments in function createDirectory"
      fi
 
@@ -173,7 +173,7 @@ createDirectory() {
         fi
     else
         ${MKDIR} -p "${source}"
-        if [ -d "${source}" ] ; then
+        if [[ -d "${source}" ]] ; then
             return 0
         fi
     fi
@@ -189,6 +189,7 @@ createDirectory() {
 #                                   (peut être de la forme login@host:path)
 # PARAMETER  2:  destination_path : chemin destination
 #                                   (peut être de la forme login@host:path)
+# PARAMETER  3:  exclude_file     : Fichier listant les fichiers à exclure
 #===============================================================================
 updateDirectory() {
     #arguments cannot be empty ==> die
@@ -223,7 +224,7 @@ updateDirectory() {
             local login_host1=$(${ECHO} "${REPERTOIRE_SOURCE}" | ${CUT} -d ':' -f 1)
             local path1=$(${ECHO} "${REPERTOIRE_SOURCE}" | ${CUT} -d ':' -f 2)
             verbose_info "-->"${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude-from=\"${EXCLUDES}\" \"${path1}/\" \"${REPERTOIRE_DESTINATION}/\""
-            ${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude-from=\"${EXCLUDES}\" \"${path1}/\" \"${REPERTOIRE_DESTINATION}/\""
+            echo ${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude-from=\"${EXCLUDES}\" \"${path1}/\" \"${REPERTOIRE_DESTINATION}/\""
             return ${?}
         fi
     fi
@@ -247,7 +248,7 @@ moveLocalDirectory() {
 
     local source="${1}"
     local dest="${2}"
-    if [ -d "${source}" ] ; then            \
+    if [[ -d "${source}" ]] ; then            \
         verbose_info "-->"${MV} "${source}" "${dest}" ;  \
         ${MV} "${source}" "${dest}" ;   \
     fi
@@ -261,12 +262,12 @@ moveLocalDirectory() {
 #===============================================================================
 deleteLocalDirectory() {
     #arguments cannot be empty ==> die
-    if [ -z "${1}" ]; then
+    if [[ -z "${1}" ]]; then
         die "FATAL ERROR: Bad number of arguments in function deleteLocalDirectory"
     fi
 
     local dir="${1}"
-    if [ -d ${dir} ] ; then         \
+    if [[ -d "${dir}" ]] ; then         \
         verbose_info "-->${RM} -rf \"${dir}\""; \
         ${RM} -rf "${dir}" ; \
     fi
@@ -285,7 +286,7 @@ deleteLocalFile() {
     fi
 
     local dir="${1}"
-    if [ -f ${dir} ] ; then         \
+    if [ -f "${dir}" ] ; then         \
         verbose_info "-->${RM} \"${dir}\""; \
         ${RM} "${dir}" ; \
     fi
