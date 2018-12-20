@@ -55,9 +55,10 @@ get_last_timestamp() {
 #         NAME:  copy_from_native_to_working_copy
 #  DESCRIPTION:  Copie des nouveaux fichiers du dossier native vers le
 #                dossier working_copy
-#        USAGE:  copy_from_native_to_working_copy source destination
+#        USAGE:  copy_from_native_to_working_copy source destination exclude_file
 # PARAMETER  1:  source      : chemin du native directory
-# PARAMETER  1:  destination : chemin du working directory
+# PARAMETER  2:  destination : chemin du working directory
+# PARAMETER  3:  exclude_file : fichier contenant la liste des fichiers à exclure
 # RETURN VALUE:   0 if OK
 #                -1 if NOK
 #===============================================================================
