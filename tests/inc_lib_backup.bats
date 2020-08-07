@@ -38,11 +38,11 @@ printlines() {
   [ "${status}" -eq 0 ]
   [ "${lines[0]}"  = "1541823241" ]
   [ "${#lines[@]}"  = "1" ]
-  
+
   run get_last_timestamp
   [ "${status}" -eq 0 ]
   [ "${#lines[@]}"  = "0" ]
-  
+
   run get_last_timestamp "dossier invalide"
   [ "${status}" -eq 255 ]
   [ "${#lines[@]}"  = "0" ]
@@ -66,12 +66,13 @@ printlines() {
   [ "${status}" -eq 0 ]
   [ "${lines[0]}"  = "Copie des nouveaux fichiers de \"${my_native_dir}\" vers \"${my_working_dir}\"." ]
   [ "${lines[1]}"  = "sending incremental file list" ]
-  [ "${lines[2]}"  = "./" ]
-  [ "${lines[3]}"  = "fichier_exclu~" ]
-  [ "${lines[4]}"  = "nouveau fichier crée dans native.txt" ]
-  [ "${lines[5]}"  = "dossier n°1 crée dans native/" ]
-  [ "${lines[6]%% * bytes  received *}"  = "sent" ] #sent 523 bytes  received 41 bytes  920.00 bytes/sec
-  [ "${lines[7]%% is *}"  = "total size" ] #"total size is 27  speedup is 0.06"
-  [ "${#lines[@]}"  = "8" ]
+  decalage=0
+  if [ "${lines[2]}"  = "./" ]; then #Ligne optionnelle
+	decalage=1
+  fi
+  [ "${lines[$((2+decalage))]}"  = "nouveau fichier crée dans native.txt" ]
+  [ "${lines[$((3+decalage))]%% * bytes  received *}"  = "sent" ] #sent 523 bytes  received 41 bytes  920.00 bytes/sec
+  [ "${lines[$((4+decalage))]%% is *}"  = "total size" ] #"total size is 27  speedup is 0.06"
+  [ "${#lines[@]}"  = "$((5+decalage))" ]
   [ "$(cat "${my_working_dir}/fichier crée dans native.txt")" = "changed" ]
 }
