@@ -1,5 +1,6 @@
 currentDir=$(pwd)
 cd ../../
+VERBOSE_INFO=true
 
 #Include global functions
 . "$(dirname "${0}")/lib/inc_lib.sh"

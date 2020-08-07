@@ -72,6 +72,9 @@ printlines() {
 	decalage=1
   fi
   [ "${lines[$((2+decalage))]}"  = "nouveau fichier crée dans native.txt" ]
+  if [ "${lines[$((3+decalage))]}"  = "dossier n°1 crée dans native/" ]; then
+	decalage=$((decalage+1))
+  fi
   [ "${lines[$((3+decalage))]%% * bytes  received *}"  = "sent" ] #sent 523 bytes  received 41 bytes  920.00 bytes/sec
   [ "${lines[$((4+decalage))]%% is *}"  = "total size" ] #"total size is 27  speedup is 0.06"
   [ "${#lines[@]}"  = "$((5+decalage))" ]
