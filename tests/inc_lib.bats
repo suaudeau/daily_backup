@@ -16,8 +16,8 @@ setup() {
 # Fonction lancée APRÈS chaque test unitaire
 teardown() {
   rm -rf "${TARGET_DIR}" #Effacer le dossier de destination temporaire
-  
   ssh ${REMOTE_TEST_USER}@${REMOTE_TEST_SERVER} rm -rf "${REMOTE_TEST_WORKING_DIR}/tmp.test"
+  ssh ${REMOTE_TEST_USER}@${REMOTE_TEST_SERVER} rm -rf "${REMOTE_TEST_WORKING_DIR}/tmp.test3"
 }
 
 # Pour debug : pour imprimer la sortie au format de test
@@ -166,18 +166,25 @@ printlines() {
 
   #Si le repertoire est impossible à créer
   run createDirectory "/proc/cpu/dossierdebile/dossier"
+  echo "--------------${#lines[@]}---"
   printlines
   [ "${status}" -eq 1 ] #erreur
   [ "${lines[0]}"  = "/bin/mkdir: impossible de créer le répertoire «/proc/cpu»: Aucun fichier ou dossier de ce type" ]
   [ "${#lines[@]}"  = "1" ] 
+}
+
+#@test "inc_lib.sh : createDirectory bad number of arguments" {
 
 #BUG
+  #Include global functions
+  #. "../lib/inc_lib.sh"
+  
   #run createDirectory
   #printlines && echo ${status}
   #[ "${status}" -eq 1 ] #erreur
   #[ "${lines[0]}"  = "FATAL ERROR: Bad number of arguments in function createDirectory" ]
   #[ "${#lines[@]}"  = "1" ] 
- }
+# }
 
 @test "inc_lib.sh : updateDirectory" {
   #Include global functions
@@ -209,27 +216,37 @@ printlines() {
   printlines
   [ "${status}" -eq 0 ]
   [ "${lines[0]}"  = "sending incremental file list" ]
-  [ "${lines[1]}"  = "Mon fichier test" ]
-  [ "${lines[2]}"  = "Mon dossier test/" ]
-  #[ "${lines[3]}"  = "sent 49 bytes  received 11 bytes  120.00 bytes/sec" ]
-  [ "${lines[4]}"  = "total size is 0  speedup is 0.00" ]
-  [ "${#lines[@]}"  = "5" ]
+  decalage=0
+  if [ "${lines[1]}"  = "./" ]; then #Ligne optionnelle
+    decalage=1
+  fi
+  [ "${lines[$((1+decalage))]}"  = "Mon fichier test" ]
+  [ "${lines[$((2+decalage))]}"  = "Mon dossier test/" ]
+  [ "${lines[$((3+decalage))]%% * bytes  received *}"  = "sent" ] #sent 49 bytes  received 11 bytes  120.00 bytes/sec
+  [ "${lines[$((4+decalage))]}"  = "total size is 0  speedup is 0.00" ]
+  [ "${#lines[@]}"  = "$((5+decalage))" ]
   #test ultérieur
   run isDirectory "${testdir2}/Mon dossier test"
   [ "${status}" -eq 0 ] 
-  
+
   #Second test
-  #run updateDirectory "${testdir2}" "${testdir3}" /dev/null
-  #printlines
-  #[ "${status}" -eq 0 ]
-  #[ "${lines[0]}"  = "sending incremental file list" ]
-  #[ "${lines[1]}"  = "Mon fichier test" ]
-  #[ "${lines[2]}"  = "Mon dossier test/" ]
-  #[ "${lines[4]}"  = "total size is 0  speedup is 0.00" ]
-  #[ "${#lines[@]}"  = "5" ]
+  echo "------- Second test -------"
+  run updateDirectory "${testdir2}" "${testdir3}" /dev/null
+  printlines
+ [ "${status}" -eq 0 ]
+  [ "${lines[0]}"  = "sending incremental file list" ]
+  decalage=0
+  if [ "${lines[1]}"  = "./" ]; then #Ligne optionnelle
+    decalage=1
+  fi
+  [ "${lines[$((1+decalage))]}"  = "Mon fichier test" ]
+  [ "${lines[$((2+decalage))]}"  = "Mon dossier test/" ]
+  [ "${lines[$((3+decalage))]%% * bytes  received *}"  = "sent" ] #sent 49 bytes  received 11 bytes  120.00 bytes/sec
+  [ "${lines[$((4+decalage))]}"  = "total size is 0  speedup is 0.00" ]
+  [ "${#lines[@]}"  = "$((5+decalage))" ]
   #test ultérieur
-  #run isDirectory "${testdir3}/Mon dossier test"
-  #[ "${status}" -eq 0 ]
+  run isDirectory "${testdir3}/Mon dossier test"
+  [ "${status}" -eq 0 ]
 }
 
 @test "inc_lib.sh : moveLocalDirectory" {
