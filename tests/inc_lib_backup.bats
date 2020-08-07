@@ -62,6 +62,7 @@ printlines() {
   [ "$(cat "${my_native_dir}/fichier crée dans native.txt")" = "original" ]
   run copy_from_native_to_working_copy "${my_native_dir}" "${my_working_dir}" "${my_exclude_file}"
   cat "${my_working_dir}/fichier crée dans native.txt"
+  [ "$(cat "${my_working_dir}/nouveau fichier crée dans native.txt")" = "original" ]
   printlines
   [ "${status}" -eq 0 ]
   [ "${lines[0]}"  = "Copie des nouveaux fichiers de \"${my_native_dir}\" vers \"${my_working_dir}\"." ]
