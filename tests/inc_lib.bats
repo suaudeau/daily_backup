@@ -4,10 +4,10 @@
 setup() {
   readonly TARGET_DIR=$(mktemp -d) #création d'un dossier de destination temporaire
   mkdir "${TARGET_DIR}/nom aux carractères spéciaux"
-  
-  REMOTE_TEST_USER="herve"
-  REMOTE_TEST_SERVER="gargas"
-  REMOTE_TEST_EXISTING_DIR="ufr/"
+
+  REMOTE_TEST_USER=${USER}
+  REMOTE_TEST_SERVER="127.0.0.1"
+  REMOTE_TEST_EXISTING_DIR=${TARGET_DIR}
   REMOTE_TEST_WORKING_DIR="./"
   REMOTE_TEST_URI_EXISTING_DIR="${REMOTE_TEST_USER}@${REMOTE_TEST_SERVER}:${REMOTE_TEST_EXISTING_DIR}"
   REMOTE_TEST_URI_WORKING_DIR="${REMOTE_TEST_USER}@${REMOTE_TEST_SERVER}:${REMOTE_TEST_WORKING_DIR}"
@@ -40,17 +40,17 @@ printlines() {
   [ "${#lines[@]}"  = "1" ]
 
   # BUG: Ne fonctionnent pas:
-  
+
   #run getPathAndCheckInstall programme_non_installe
   #printlines
   #[ "${lines[0]}"  = "FATAL ERROR: programme_non_installe is not installed" ]
-  #[ "${#lines[@]}"  = "1" ] 
-  
+  #[ "${#lines[@]}"  = "1" ]
+
   #run getPathAndCheckInstall
   #printlines
   #[ "${status}" -eq 0 ] # Pas d'erreur
   #[ "${lines[0]}"  = "FATAL ERROR: Use function getPathAndCheckInstall with an argument" ]
-  #[ "${#lines[@]}"  = "1" ] 
+  #[ "${#lines[@]}"  = "1" ]
 }
 
 @test "inc_lib.sh : verbose_info" {
@@ -86,18 +86,18 @@ printlines() {
 @test "inc_lib.sh : isDirectory" {
   #Include global functions
   . "../lib/inc_lib.sh"
-  
+
   run isDirectory "${REMOTE_TEST_URI_EXISTING_DIR}"
   printlines
-  # Pas d'erreur de retour : la valeur de "exit" est 0 
+  # Pas d'erreur de retour : la valeur de "exit" est 0
   [ "${status}" -eq 0 ]
   [ "${#lines[@]}"  = "0" ] #rien n'est écrit sur l'écran
-  
-  run isDirectory herve@gargas:repertoire_inexistant/
+
+  run isDirectory ${REMOTE_TEST_USER}@${REMOTE_TEST_SERVER}:repertoire_inexistant_45687678757/
   printlines && echo ${status}
   [ "${status}" -eq 1 ] #erreur
   [ "${#lines[@]}"  = "0" ] #rien n'est écrit sur l'écran
-  
+
   run isDirectory "${TARGET_DIR}"
   [ "${status}" -eq 0 ]
   [ "${#lines[@]}"  = "0" ] #rien n'est écrit sur l'écran
@@ -105,7 +105,7 @@ printlines() {
   run isDirectory "${TARGET_DIR}/fichier_inexistant"
   [ "${status}" -eq 1 ] #erreur
   [ "${#lines[@]}"  = "0" ] #rien n'est écrit sur l'écran
-  
+
   run isDirectory "${TARGET_DIR}/nom aux carractères spéciaux"
   [ "${status}" -eq 0 ]
   [ "${#lines[@]}"  = "0" ] #rien n'est écrit sur l'écran
@@ -113,20 +113,20 @@ printlines() {
   run isDirectory "${TARGET_DIR}/nom aux carractères spéciaux inexistant"
   [ "${status}" -eq 1 ] #erreur
   [ "${#lines[@]}"  = "0" ] #rien n'est écrit sur l'écran
-  
+
 #BUG
-  #run isDirectory 
+  #run isDirectory
   #printlines && echo ${status}
   #[ "${status}" -eq 1 ] #erreur
   #[ "${lines[0]}"  = "FATAL ERROR: Bad number of arguments in function isDirectory" ]
-  #[ "${#lines[@]}"  = "1" ] 
+  #[ "${#lines[@]}"  = "1" ]
 
 }
 
 @test "inc_lib.sh : createDirectory remote" {
   #Include global functions
   . "../lib/inc_lib.sh"
-  
+
   testdir="${REMOTE_TEST_USER}@${REMOTE_TEST_SERVER}:${REMOTE_TEST_WORKING_DIR}/tmp.test"
   #test préalable
   run isDirectory "${testdir}"
@@ -138,13 +138,13 @@ printlines() {
   [ "${#lines[@]}"  = "0" ] #rien n'est écrit sur l'écran
   #test ultérieur
   run isDirectory "${testdir}"
-  [ "${status}" -eq 0 ] 
+  [ "${status}" -eq 0 ]
 }
 
 @test "inc_lib.sh : createDirectory local" {
   #Include global functions
   . "../lib/inc_lib.sh"
-  
+
   testdir="${TARGET_DIR}/tmp.test/tmp.test"
   #test préalable
   run isDirectory "${testdir}"
@@ -156,8 +156,8 @@ printlines() {
   [ "${#lines[@]}"  = "0" ] #rien n'est écrit sur l'écran
   #test ultérieur
   run isDirectory "${testdir}"
-  [ "${status}" -eq 0 ] 
-  
+  [ "${status}" -eq 0 ]
+
   #Si le repertoire existe déjà
   run createDirectory "${testdir}"
   printlines
@@ -170,7 +170,7 @@ printlines() {
   printlines
   [ "${status}" -eq 1 ] #erreur
   [ "${lines[0]}"  = "/bin/mkdir: impossible de créer le répertoire «/proc/cpu»: Aucun fichier ou dossier de ce type" ]
-  [ "${#lines[@]}"  = "1" ] 
+  [ "${#lines[@]}"  = "1" ]
 }
 
 #@test "inc_lib.sh : createDirectory bad number of arguments" {
@@ -178,18 +178,18 @@ printlines() {
 #BUG
   #Include global functions
   #. "../lib/inc_lib.sh"
-  
+
   #run createDirectory
   #printlines && echo ${status}
   #[ "${status}" -eq 1 ] #erreur
   #[ "${lines[0]}"  = "FATAL ERROR: Bad number of arguments in function createDirectory" ]
-  #[ "${#lines[@]}"  = "1" ] 
+  #[ "${#lines[@]}"  = "1" ]
 # }
 
 @test "inc_lib.sh : updateDirectory" {
   #Include global functions
   . "../lib/inc_lib.sh"
-  
+
   testdir="${TARGET_DIR}/tmp.test/tmp.test"
   testdir2="${REMOTE_TEST_USER}@${REMOTE_TEST_SERVER}:${REMOTE_TEST_WORKING_DIR}/tmp.test"
   testdir3="${REMOTE_TEST_USER}@${REMOTE_TEST_SERVER}:${REMOTE_TEST_WORKING_DIR}/tmp.test3"
@@ -227,7 +227,7 @@ printlines() {
   [ "${#lines[@]}"  = "$((5+decalage))" ]
   #test ultérieur
   run isDirectory "${testdir2}/Mon dossier test"
-  [ "${status}" -eq 0 ] 
+  [ "${status}" -eq 0 ]
 
   #Second test
   echo "------- Second test -------"
@@ -252,7 +252,7 @@ printlines() {
 @test "inc_lib.sh : moveLocalDirectory" {
   #Include global functions
   . "../lib/inc_lib.sh"
-  
+
   run moveLocalDirectory "${TARGET_DIR}" "/tmp/nouveau dossier"
   printlines
   [ "${status}" -eq 0 ]
@@ -266,14 +266,14 @@ printlines() {
 @test "inc_lib.sh : deleteLocalDirectory" {
   #Include global functions
   . "../lib/inc_lib.sh"
-  
-  run deleteLocalDirectory "${TARGET_DIR}" 
+
+  run deleteLocalDirectory "${TARGET_DIR}"
   printlines
   [ "${status}" -eq 0 ]
   [ "${#lines[@]}"  = "0" ]
   #test ultérieur
   [ ! -d "${TARGET_DIR}" ]
-  run deleteLocalDirectory "/tmp/dossier inexistant" 
+  run deleteLocalDirectory "/tmp/dossier inexistant"
   printlines
   [ "${status}" -eq 0 ]
   [ "${#lines[@]}"  = "0" ]
@@ -282,10 +282,10 @@ printlines() {
 @test "inc_lib.sh : deleteLocalFile" {
   #Include global functions
   . "../lib/inc_lib.sh"
- 
-  touch "${TARGET_DIR}/mon fichier" 
+
+  touch "${TARGET_DIR}/mon fichier"
   [ -f "${TARGET_DIR}/mon fichier" ]
-  run deleteLocalFile "${TARGET_DIR}/mon fichier" 
+  run deleteLocalFile "${TARGET_DIR}/mon fichier"
   printlines
   [ "${status}" -eq 0 ]
   [ "${#lines[@]}"  = "0" ]
@@ -295,13 +295,13 @@ printlines() {
 @test "inc_lib.sh : replaceLocalDirectory" {
   #Include global functions
   . "../lib/inc_lib.sh"
- 
-  mkdir "${TARGET_DIR}/dossier remplaçant" 
-  mkdir "${TARGET_DIR}/dossier remplacé" 
-  touch "${TARGET_DIR}/dossier remplacé/mon fichier" 
+
+  mkdir "${TARGET_DIR}/dossier remplaçant"
+  mkdir "${TARGET_DIR}/dossier remplacé"
+  touch "${TARGET_DIR}/dossier remplacé/mon fichier"
   [ -d "${TARGET_DIR}/dossier remplaçant"  ]
   [ -f "${TARGET_DIR}/dossier remplacé/mon fichier" ]
-  run replaceLocalDirectory "${TARGET_DIR}/dossier remplaçant" "${TARGET_DIR}/dossier remplacé" 
+  run replaceLocalDirectory "${TARGET_DIR}/dossier remplaçant" "${TARGET_DIR}/dossier remplacé"
   printlines
   [ "${status}" -eq 0 ]
   [ "${#lines[@]}"  = "0" ]
