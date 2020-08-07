@@ -32,18 +32,18 @@ Do a dailly rsync backup and archives local or remote directories.
 
 ### Unit test:
 #### stats
-* 12 unit tests
+* 14 unit tests
 
 #### preconditions
 Permit that you can connect to your account on 127.0.0.1 with ssh without password. If it ask password do the following instructions:
- cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
- 
+    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
 Configure servers and dirs in file "tests/inc_lib.bats" at line 8 to 11.
 
 #### Instructions
- apt install bats
- cd tests
- bats *
+    apt install bats
+    cd tests
+    bats *
 
 ### Bugs:
 
@@ -64,6 +64,7 @@ Hervé SUAUDEAU, herve.suaudeau (arob.) parisdescartes.fr (CNRS)
 | 1.4     | 31.05.2016 | CODE: Move librairies into lib/, improve lib documentation. |
 | 1.5     |  8.12.2016 | FUNC: Add a time stamp file into Working dir. |
 | 1.6     |  1.01.2017 | FUNC: Authorize irregular backups in time. |
+| 1.7     |  7.08.2020 | BUG: if only one day-x/ dir is present in backup. Weeklyjob is copiying all data from zero |
 
 ### Licence
     GPL v3

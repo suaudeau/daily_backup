@@ -423,6 +423,8 @@ dailyJob() {
 #
 #        USAGE: getTypeOfDailyJob backup_directory
 # PARAMETER  1: backup_directory : chemin du backup directory
+# PARAMETER  2 (optional): change the timestamp of today (usefull for test
+#                          or retrospective scripts)
 # ECHO VALUE:   "week", "day" or "none"
 # RETURN VALUE: none
 #===============================================================================
@@ -430,17 +432,24 @@ getTypeOfDailyJob () {
   #argument can be empty ==> return 0
   if [ -z "${1}" ]; then
       return 0    return
-
   fi
+
   local BACKUP_DIR="${1}"
-  local day_of_the_week=$(${DATE} '+%u')
+
+  if [ -z "${2}" ]; then
+    local current_timestamp=$(${DATE} +%s)
+  	local day_of_the_week=$(${DATE} '+%u')
+  else
+	local current_timestamp="${2}"
+	local day_of_the_week="$(${DATE} -d @${current_timestamp} +%u)"
+  fi
+
   if [ "${day_of_the_week}" == 1 ]; then
       #If first day of week
       ${ECHO} 'week'
       return
   fi
   local last_backup_timestamp=$(get_last_timestamp ${BACKUP_DIR})
-  local current_timestamp=$(${DATE} +%s)
   if [[ ! -z "${last_backup_timestamp}" ]]; then
     local current_week=$(${DATE} -d @${current_timestamp} +%W)
     local last_backup_week=$(${DATE} -d @${last_backup_timestamp} +%W)
@@ -478,6 +487,8 @@ getTypeOfDailyJob () {
 #
 #        USAGE: getTypeOfMonthlyJob backup_directory
 # PARAMETER  1: backup_directory : chemin du backup directory
+# PARAMETER  2 (optional): change the timestamp of today (usefull for test
+#                          or retrospective scripts)
 # ECHO VALUE:   "year", "month" or "none"
 # RETURN VALUE: none
 #===============================================================================
@@ -486,10 +497,18 @@ getTypeOfMonthlyJob () {
     if [ -z "${1}" ]; then
         return 0
     fi
-    local BACKUP_DIR="${1}"
-    local day_of_the_year=$(${DATE} '+%j')
+
+	local BACKUP_DIR="${1}"
+
+	if [ -z "${2}" ]; then
+		local day_of_the_year=$(${DATE} '+%j')
+		local current_timestamp=$(${DATE} +%s)
+    else
+		local current_timestamp="${2}"
+		local day_of_the_year="$(${DATE} -d @${current_timestamp} +%j)"
+    fi
+
     local last_backup_timestamp=$(get_last_timestamp ${BACKUP_DIR})
-    local current_timestamp=$(${DATE} +%s)
     if [[ ! -z "${last_backup_timestamp}" ]]; then
         local current_year=$(${DATE} -d @${current_timestamp} +%Y)
         local last_backup_year=$(${DATE} -d @${last_backup_timestamp} +%Y)

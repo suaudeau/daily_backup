@@ -80,3 +80,88 @@ printlines() {
   [ "${#lines[@]}"  = "$((5+decalage))" ]
   [ "$(cat "${my_working_dir}/fichier crée dans native.txt")" = "changed" ]
 }
+
+@test "inc_lib_backup.sh : getTypeOfDailyJob" {
+  #Include global functions
+  . "../lib/inc_lib.sh"
+  . "../lib/inc_lib_backup.sh"
+
+  #1541996041 is a monday
+  run getTypeOfDailyJob ${my_backup_dir} 1541996041
+  printlines
+  [ "${status}" -eq 0 ]
+  [ "${#lines[@]}"  = "1" ]
+  [ "${lines[0]}"  = "week" ]
+
+  #10 seconds after
+  run getTypeOfDailyJob ${my_backup_dir} 1541823251
+  printlines
+  [ "${status}" -eq 0 ]
+  [ "${#lines[@]}"  = "1" ]
+  [ "${lines[0]}"  = "none" ]
+
+  #24 hours after (in sunday)
+  run getTypeOfDailyJob ${my_backup_dir} 1541909641
+  printlines
+  [ "${status}" -eq 0 ]
+  [ "${#lines[@]}"  = "1" ]
+  [ "${lines[0]}"  = "day" ]
+
+  #3 weeks after
+  run getTypeOfDailyJob ${my_backup_dir} 1543637641
+  printlines
+  [ "${status}" -eq 0 ]
+  [ "${#lines[@]}"  = "1" ]
+  [ "${lines[0]}"  = "week" ]
+
+  #No timestamp in dir (normaly "week")
+  rm ${my_backup_dir}/day-1/___date_of_backup___.txt
+  run getTypeOfDailyJob ${my_backup_dir} 1543637641
+  printlines
+  [ "${status}" -eq 0 ]
+  [ "${#lines[@]}"  = "1" ]
+  [ "${lines[0]}"  = "day" ]
+
+}
+
+
+@test "inc_lib_backup.sh : getTypeOfMonthlyJob" {
+  #Include global functions
+  . "../lib/inc_lib.sh"
+  . "../lib/inc_lib_backup.sh"
+
+  #(sam. 10 nov. 2018 05:14:01) + 3 weeks
+  run getTypeOfMonthlyJob ${my_backup_dir} 1543637641
+  printlines
+  [ "${status}" -eq 0 ]
+  [ "${#lines[@]}"  = "1" ]
+  [ "${lines[0]}"  = "month" ]
+
+  #(sam. 10 nov. 2018 05:14:01) + 2 weeks
+  run getTypeOfMonthlyJob ${my_backup_dir} 1543032841
+  printlines
+  [ "${status}" -eq 0 ]
+  [ "${#lines[@]}"  = "1" ]
+  [ "${lines[0]}"  = "none" ]
+
+  #(2019-01-01_+05:14:01)
+  run getTypeOfMonthlyJob ${my_backup_dir} 1546316041
+  printlines
+  [ "${status}" -eq 0 ]
+  [ "${#lines[@]}"  = "1" ]
+  [ "${lines[0]}"  = "year" ]
+
+  #(sam. 10 nov. 2018 05:14:01) + 365 days
+  run getTypeOfMonthlyJob ${my_backup_dir} 1573359241
+  printlines
+  [ "${status}" -eq 0 ]
+  [ "${#lines[@]}"  = "1" ]
+  [ "${lines[0]}"  = "none" ]
+
+  #(sam. 10 nov. 2018 05:14:01) + 366 days
+  run getTypeOfMonthlyJob ${my_backup_dir} 1573445641
+  printlines
+  [ "${status}" -eq 0 ]
+  [ "${#lines[@]}"  = "1" ]
+  [ "${lines[0]}"  = "year" ]
+}

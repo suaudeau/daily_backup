@@ -72,8 +72,8 @@ for config_file in $(ls "${SCRIPT_PATH}/cfg/"*.cfg); do
         if [ $typeOfDailyJob == "day" ]; then
             dailyJob "${working_dir}" "${backup_dir}" "${excludes_file}"
         elif [ $typeOfDailyJob == "week" ]; then
-            weeklyJob "${backup_dir}"
             dailyJob "${working_dir}" "${backup_dir}" "${excludes_file}"
+			weeklyJob "${backup_dir}"
         fi
     fi
     ${RM} ${excludes_file}   #Clean temp file
