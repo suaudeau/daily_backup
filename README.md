@@ -30,6 +30,21 @@ Do a dailly rsync backup and archives local or remote directories.
 ### Requirement:  
     lib/inc_lib.sh, lib/inc_lib_backup.sh, conf/
 
+### Unit test:
+#### stats
+* 12 unit tests
+
+#### preconditions
+Permit that you can connect to your account on 127.0.0.1 with ssh without password. If it ask password do the following instructions:
+ cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+ 
+Configure servers and dirs in file "tests/inc_lib.bats" at line 8 to 11.
+
+#### Instructions
+ apt install bats
+ cd tests
+ bats *
+
 ### Bugs:
 
 ### Notes:  
