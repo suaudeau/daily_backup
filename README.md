@@ -65,6 +65,7 @@ Hervé SUAUDEAU, herve.suaudeau (arob.) parisdescartes.fr (CNRS)
 | 1.5     |  8.12.2016 | FUNC: Add a time stamp file into Working dir. |
 | 1.6     |  1.01.2017 | FUNC: Authorize irregular backups in time. |
 | 1.7     |  7.08.2020 | BUG: if only one day-x/ dir is present in backup. Weeklyjob is copiying all data from zero |
+| 1.8     | 21.06.2021 | BUG: On some remote machines path wath not recognized |
 
 ### Licence
     GPL v3

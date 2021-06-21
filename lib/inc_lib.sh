@@ -133,8 +133,8 @@ isDirectory() {
     if [[ "${1}" =~ .+@.+:.+ ]]; then
         #remote path : login@host:path
         local login_host=$(${ECHO} "${1}" | ${CUT} -d ':' -f 1)
-        local remote_path=$(${ECHO} "${1}" | ${CUT} -d ':' -f 2)
-        isDir=$(${SSH} "${login_host}" "if [ -d '${remote_path}' ] ; then ${ECHO} '0'; fi")
+        local remote_path=$(echo "${1}" | cut -d ':' -f 2)
+        isDir=$(${SSH} "${login_host}" "if [ -d '${remote_path}' ] ; then echo '0'; fi")
         if [[ "${isDir}" == '0' ]]; then
             return 0
         fi
