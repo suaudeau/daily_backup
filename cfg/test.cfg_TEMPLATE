@@ -3,8 +3,10 @@
 # Mettre ici les chemins
 # BACKUP_DIR doit être un dossier local
 # NATIVE_DIR ou WORKING_DIR peuvent être vides
+# BACKUP_SELECTION est la liste (séparée par des espaces) des fichiers à copier de WORKING_DIR vers BACKUP_DIR
 # ---------------------------------------------
 NATIVE_DIR=root@172.20.62.11:/home/shared/test/native
 WORKING_DIR=/home/shared/test/working_copy
 BACKUP_DIR=/home/shared/test/backup_copy
 EXCLUDES=*~  .svn/ .thumbnails/ .Trash/ *.tmp lost+found/ .cache/ .beagle/ *.noworking/ .Trash-1000/
+BACKUP_SELECTION=*
