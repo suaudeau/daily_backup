@@ -165,3 +165,89 @@ printlines() {
   [ "${#lines[@]}"  = "1" ]
   [ "${lines[0]}"  = "year" ]
 }
+
+@test "inc_lib_backup.sh : dailyJob *" {
+  #Include global functions
+  . "../lib/inc_lib.sh"
+  . "../lib/inc_lib_backup.sh"
+  run dailyJob "${my_working_dir}" "${my_backup_dir}" "${my_exclude_file}" "*"
+  printlines
+  [ "${status}" -eq 0 ]
+  [ "${#lines[@]}"  = "9" ]
+  [ "${lines[0]}"  = "Archivage des fichiers \"*\" de ${my_working_dir} vers ${my_backup_dir}." ]
+  [ "${lines[1]}"  = "-->/bin/cp -al ${my_backup_dir}/day-1 ${my_backup_dir}/day-2" ]
+  [ "${lines[2]}"  = "-->/usr/bin/rsync -va --delete --force --delete-excluded --exclude-from=${my_exclude_file} \"${my_working_dir}/\" \"${my_backup_dir}/day-1/\"" ]
+  [ "${lines[3]}"  = "sending incremental file list" ]
+  [ "${lines[4]}"  = "deleting ___date_of_backup___.txt" ]
+  [ "${lines[5]}"  = "fichier crée dans native.txt" ]
+  [ "${lines[6]}"  = "fichier rajouté.txt" ]
+  [[ "${lines[7]}"  =~ ^sent\ .+\ bytes\ +received.+bytes.+bytes/sec ]]
+  [[ "${lines[8]}"  =~ ^total\ size\ is\ .+speedup\ is ]]
+}
+
+@test "inc_lib_backup.sh : dailyJob [empty]" {
+  #Include global functions
+  . "../lib/inc_lib.sh"
+  . "../lib/inc_lib_backup.sh"
+  run dailyJob "${my_working_dir}" "${my_backup_dir}" "${my_exclude_file}" ""
+  printlines
+  [ "${status}" -eq 0 ]
+  [ "${#lines[@]}"  = "9" ]
+  [ "${lines[0]}"  = "Archivage des fichiers \"\" de ${my_working_dir} vers ${my_backup_dir}." ]
+  [ "${lines[1]}"  = "-->/bin/cp -al ${my_backup_dir}/day-1 ${my_backup_dir}/day-2" ]
+  [ "${lines[2]}"  = "-->/usr/bin/rsync -va --delete --force --delete-excluded --exclude-from=${my_exclude_file} \"${my_working_dir}/\" \"${my_backup_dir}/day-1/\"" ]
+  [ "${lines[3]}"  = "sending incremental file list" ]
+  [ "${lines[4]}"  = "deleting ___date_of_backup___.txt" ]
+  [ "${lines[5]}"  = "fichier crée dans native.txt" ]
+  [ "${lines[6]}"  = "fichier rajouté.txt" ]
+  [[ "${lines[7]}"  =~ ^sent\ .+\ bytes\ +received.+bytes.+bytes/sec ]]
+  [[ "${lines[8]}"  =~ ^total\ size\ is\ .+speedup\ is ]]
+}
+
+@test "inc_lib_backup.sh : dailyJob select" {
+  #Include global functions
+  . "../lib/inc_lib.sh"
+  . "../lib/inc_lib_backup.sh"
+  mkdir ${my_working_dir}/aaa
+  touch ${my_working_dir}/aaa/bbb
+  touch ${my_working_dir}/ccc
+  run dailyJob "${my_working_dir}" "${my_backup_dir}" "${my_exclude_file}" "aaa"
+  printlines
+  [ "${status}" -eq 0 ]
+  [ "${#lines[@]}"  = "8" ]
+  [ "${lines[0]}"  = "Archivage des fichiers \"aaa\" de ${my_working_dir} vers ${my_backup_dir}." ]
+  [ "${lines[1]}"  = "-->/bin/cp -al ${my_backup_dir}/day-1 ${my_backup_dir}/day-2" ]
+  [ "${lines[2]}"  = "-->/usr/bin/rsync -va --delete --force --delete-excluded --exclude-from=${my_exclude_file} \"${my_working_dir}/aaa\" \"${my_backup_dir}/day-1/\"" ]
+  [ "${lines[3]}"  = "sending incremental file list" ]
+  [ "${lines[4]}"  = "aaa/" ]
+  [ "${lines[5]}"  = "aaa/bbb" ]
+  [[ "${lines[6]}"  =~ ^sent\ .+\ bytes\ +received.+bytes.+bytes/sec ]]
+  [[ "${lines[7]}"  =~ ^total\ size\ is\ .+speedup\ is ]]
+}
+
+@test "inc_lib_backup.sh : dailyJob select2" {
+  #Include global functions
+  . "../lib/inc_lib.sh"
+  . "../lib/inc_lib_backup.sh"
+  mkdir ${my_working_dir}/aaa
+  touch ${my_working_dir}/aaa/bbb
+  touch ${my_working_dir}/ccc
+  run dailyJob "${my_working_dir}" "${my_backup_dir}" "${my_exclude_file}" "aaa ccc"
+  printlines
+  [ "${status}" -eq 0 ]
+  [ "${#lines[@]}"  = "13" ]
+  [ "${lines[0]}"  = "Archivage des fichiers \"aaa ccc\" de ${my_working_dir} vers ${my_backup_dir}." ]
+  [ "${lines[1]}"  = "-->/bin/cp -al ${my_backup_dir}/day-1 ${my_backup_dir}/day-2" ]
+  [ "${lines[2]}"  = "-->/usr/bin/rsync -va --delete --force --delete-excluded --exclude-from=${my_exclude_file} \"${my_working_dir}/aaa\" \"${my_backup_dir}/day-1/\"" ]
+  [ "${lines[3]}"  = "sending incremental file list" ]
+  [ "${lines[4]}"  = "aaa/" ]
+  [ "${lines[5]}"  = "aaa/bbb" ]
+  [[ "${lines[6]}"  =~ ^sent\ .+\ bytes\ +received.+bytes.+bytes/sec ]]
+  [[ "${lines[7]}"  =~ ^total\ size\ is\ .+speedup\ is ]]
+  [ "${lines[8]}"  = "-->/usr/bin/rsync -va --delete --force --delete-excluded --exclude-from=${my_exclude_file} \"${my_working_dir}/ccc\" \"${my_backup_dir}/day-1/\"" ]
+  [ "${lines[9]}"  = "sending incremental file list" ]
+  [ "${lines[10]}"  = "ccc" ]
+  [[ "${lines[11]}"  =~ ^sent\ .+\ bytes\ +received.+bytes.+bytes/sec ]]
+  [[ "${lines[12]}"  =~ ^total\ size\ is\ .+speedup\ is ]]
+
+}
