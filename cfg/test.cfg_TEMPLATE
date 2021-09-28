@@ -7,4 +7,4 @@
 NATIVE_DIR=root@172.20.62.11:/home/shared/test/native
 WORKING_DIR=/home/shared/test/working_copy
 BACKUP_DIR=/home/shared/test/backup_copy
-EXCLUDES=*~  .svn/ .thumbnails/ .Trash/ *.tmp lost+found/ .cache/ .beagle/ *.noworking/
+EXCLUDES=*~  .svn/ .thumbnails/ .Trash/ *.tmp lost+found/ .cache/ .beagle/ *.noworking/ .Trash-1000/
