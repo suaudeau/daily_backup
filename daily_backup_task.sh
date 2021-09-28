@@ -55,6 +55,7 @@ for config_file in $(ls "${SCRIPT_PATH}/cfg/"*.cfg); do
     working_dir=$(${GREP} '^WORKING_DIR=' "${config_file}" | ${CUT} -d "=" -f 2-)
     backup_dir=$(${GREP} '^BACKUP_DIR=' "${config_file}" | ${CUT} -d "=" -f 2-)
     excludes_file=$(${MKTEMP})
+    backup_selection=$(${GREP} '^BACKUP_SELECTION=' "${config_file}" | ${CUT} -d "=" -f 2-)
     ${GREP} '^EXCLUDES=' "${config_file}" | ${CUT} -d "=" -f 2- > ${excludes_file}
     if [[ ! -z "${backup_dir}" ]]; then   #do only if backup_dir is defined
         typeOfDailyJob=$(getTypeOfDailyJob ${backup_dir})
@@ -70,9 +71,9 @@ for config_file in $(ls "${SCRIPT_PATH}/cfg/"*.cfg); do
         fi
 
         if [ $typeOfDailyJob == "day" ]; then
-            dailyJob "${working_dir}" "${backup_dir}" "${excludes_file}"
+            dailyJob "${working_dir}" "${backup_dir}" "${excludes_file}" "${backup_selection}"
         elif [ $typeOfDailyJob == "week" ]; then
-            dailyJob "${working_dir}" "${backup_dir}" "${excludes_file}"
+            dailyJob "${working_dir}" "${backup_dir}" "${excludes_file}" "${backup_selection}"
 			weeklyJob "${backup_dir}"
         fi
     fi
