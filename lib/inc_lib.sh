@@ -40,6 +40,7 @@
 #              | ------- | ---------- | --------------------------------------------
 #              | 1.0     | 30.05.2016 | First commit into Github.
 #              | 1.1     | 31.05.2016 | Improve doc and add verbose_info
+#              | 1.9     | 28.09.2021 | Add parameter BACKUP_SELECTION to cfg file
 #
 #===================================================================================
 #------ Commandes utilisées par ce script ----
