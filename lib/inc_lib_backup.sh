@@ -21,6 +21,7 @@
 #              | Version |    Date    | Comments
 #              | ------- | ---------- | --------------------------------------------
 #              | 1.0     | 30.05.2016 | Separation of inc_lib from inc_lib_backup
+#              | 1.9     | 28.09.2021 | Add parameter BACKUP_SELECTION to cfg file
 #
 #===================================================================================
 
@@ -106,9 +107,9 @@ copy_from_native_to_working_copy() {
 #               step 2: shift the middle snapshots(s) back by one, if they exist
 #               step 3: year-1 is created from the oldest monthly snapshot
 #
-#               delete year-10                              (step 1)
-#               year-09  ---move---> year-10                (step 2)
-#               year-08  ---move---> year-09
+#               delete year-20                              (step 1)
+#               year-19  ---move---> year-20                (step 2)
+#               year-18  ---move---> year-19
 #               ...
 #               year-01  ---move---> year-02
 #               month-12 ---move---> year-01                (step 3)
@@ -139,9 +140,19 @@ yearlyJob() {
     # rotation des backups
     #----------------------------------------------------------------------
     # step 1: delete the oldest snapshot, if it exists:
-    deleteLocalDirectory "${REPERTOIRE_DESTINATION}/year-10"
+    deleteLocalDirectory "${REPERTOIRE_DESTINATION}/year-20"
 
     # step 2: shift the middle snapshots(s) back by one, if they exist
+    moveLocalDirectory "${REPERTOIRE_DESTINATION}/year-19" "${REPERTOIRE_DESTINATION}/year-20"
+    moveLocalDirectory "${REPERTOIRE_DESTINATION}/year-18" "${REPERTOIRE_DESTINATION}/year-19"
+    moveLocalDirectory "${REPERTOIRE_DESTINATION}/year-17" "${REPERTOIRE_DESTINATION}/year-18"
+    moveLocalDirectory "${REPERTOIRE_DESTINATION}/year-16" "${REPERTOIRE_DESTINATION}/year-17"
+    moveLocalDirectory "${REPERTOIRE_DESTINATION}/year-15" "${REPERTOIRE_DESTINATION}/year-16"
+    moveLocalDirectory "${REPERTOIRE_DESTINATION}/year-14" "${REPERTOIRE_DESTINATION}/year-15"
+    moveLocalDirectory "${REPERTOIRE_DESTINATION}/year-13" "${REPERTOIRE_DESTINATION}/year-14"
+    moveLocalDirectory "${REPERTOIRE_DESTINATION}/year-12" "${REPERTOIRE_DESTINATION}/year-13"
+    moveLocalDirectory "${REPERTOIRE_DESTINATION}/year-11" "${REPERTOIRE_DESTINATION}/year-12"
+    moveLocalDirectory "${REPERTOIRE_DESTINATION}/year-10" "${REPERTOIRE_DESTINATION}/year-11"
     moveLocalDirectory "${REPERTOIRE_DESTINATION}/year-09" "${REPERTOIRE_DESTINATION}/year-10"
     moveLocalDirectory "${REPERTOIRE_DESTINATION}/year-08" "${REPERTOIRE_DESTINATION}/year-09"
     moveLocalDirectory "${REPERTOIRE_DESTINATION}/year-07" "${REPERTOIRE_DESTINATION}/year-08"
@@ -350,8 +361,9 @@ dailyJob() {
     local REPERTOIRE_SOURCE="${1}"
     local REPERTOIRE_DESTINATION="${2}"
     local EXCLUDES="${3}"
+    local BACKUP_SELECTION="${4}"
 
-    ${ECHO} "Archivage des fichiers de ${REPERTOIRE_SOURCE} vers ${REPERTOIRE_DESTINATION}."
+    ${ECHO} "Archivage des fichiers \"${BACKUP_SELECTION}\" de ${REPERTOIRE_SOURCE} vers ${REPERTOIRE_DESTINATION}."
 
     # Détecter la présence du volume de source et interrompre l'opération si nécessaire
     if !(isDirectory "${REPERTOIRE_SOURCE}") ; then
@@ -398,8 +410,16 @@ dailyJob() {
     #               --delete supprime fichiers qui sont effacés de la source
     #               --force supprime les dossiers effacés de la source
     #               --stats Affiche les statistiques sur les fichiers.
-    ${ECHO} "-->${RSYNC} -va --delete --force --delete-excluded --exclude-from="${EXCLUDES}" \"${REPERTOIRE_SOURCE}/\" \"${REPERTOIRE_DESTINATION}/day-1/\"" ;
-    ${RSYNC} -av --delete --force --delete-excluded --exclude-from="${EXCLUDES}" "${REPERTOIRE_SOURCE}/" "${REPERTOIRE_DESTINATION}/day-1/"
+    #               --delete-excluded Efface aussi les fichiers exclus de la destination
+    if [[ -z "${4}" || "*" == "${4}" ]]; then
+		${ECHO} "-->${RSYNC} -va --delete --force --delete-excluded --exclude-from="${EXCLUDES}" \"${REPERTOIRE_SOURCE}/\" \"${REPERTOIRE_DESTINATION}/day-1/\"" ;
+		${RSYNC} -av --delete --force --delete-excluded --exclude-from="${EXCLUDES}" "${REPERTOIRE_SOURCE}/" "${REPERTOIRE_DESTINATION}/day-1/"
+	else
+		for dir in ${4}; do
+			${ECHO} "-->${RSYNC} -va --delete --force --delete-excluded --exclude-from="${EXCLUDES}" \"${REPERTOIRE_SOURCE}/${dir}\" \"${REPERTOIRE_DESTINATION}/day-1/\"" ;
+			${RSYNC} -av --delete --force --delete-excluded --exclude-from="${EXCLUDES}" "${REPERTOIRE_SOURCE}/${dir}" "${REPERTOIRE_DESTINATION}/day-1/"
+		done
+	fi
 
     # step 5: update the mtime of day-1 to reflect the snapshot time
     #         and add a time stamp in file
