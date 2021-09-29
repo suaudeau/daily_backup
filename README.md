@@ -67,6 +67,7 @@ Hervé SUAUDEAU, herve.suaudeau (arob.) parisdescartes.fr (CNRS)
 | 1.7     |  7.08.2020 | BUG: if only one day-x/ dir is present in backup. Weeklyjob is copiying all data from zero |
 | 1.8     | 21.06.2021 | BUG: On some remote machines path wath not recognized |
 | 1.9     | 28.09.2021 | Add parameter BACKUP_SELECTION to cfg file |
+| 1.10    | 29.09.2021 | Permit exclude dirs from backup |
 
 ### Licence
     GPL v3
