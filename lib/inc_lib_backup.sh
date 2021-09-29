@@ -413,12 +413,12 @@ dailyJob() {
     #               --stats Affiche les statistiques sur les fichiers.
     #               --delete-excluded Efface aussi les fichiers exclus de la destination
     if [[ -z "${4}" || "*" == "${4}" ]]; then
-		${ECHO} "-->${RSYNC} -va --delete --force --delete-excluded --exclude=${EXCLUDES} \"${REPERTOIRE_SOURCE}/\" \"${REPERTOIRE_DESTINATION}/day-1/\"" ;
-		${RSYNC} -av --delete --force --delete-excluded --exclude=${EXCLUDES} "${REPERTOIRE_SOURCE}/" "${REPERTOIRE_DESTINATION}/day-1/"
+		${ECHO} "-->${RSYNC} -va --delete --force --delete-excluded ${EXCLUDES} \"${REPERTOIRE_SOURCE}/\" \"${REPERTOIRE_DESTINATION}/day-1/\"" ;
+		${RSYNC} -av --delete --force --delete-excluded ${EXCLUDES} "${REPERTOIRE_SOURCE}/" "${REPERTOIRE_DESTINATION}/day-1/"
 	else
 		for dir in ${4}; do
-			${ECHO} "-->${RSYNC} -va --delete --force --delete-excluded --exclude=${EXCLUDES} \"${REPERTOIRE_SOURCE}/${dir}\" \"${REPERTOIRE_DESTINATION}/day-1/\"" ;
-			${RSYNC} -av --delete --force --delete-excluded --exclude=${EXCLUDES} "${REPERTOIRE_SOURCE}/${dir}" "${REPERTOIRE_DESTINATION}/day-1/"
+			${ECHO} "-->${RSYNC} -va --delete --force --delete-excluded ${EXCLUDES} \"${REPERTOIRE_SOURCE}/${dir}\" \"${REPERTOIRE_DESTINATION}/day-1/\"" ;
+			${RSYNC} -av --delete --force --delete-excluded ${EXCLUDES} "${REPERTOIRE_SOURCE}/${dir}" "${REPERTOIRE_DESTINATION}/day-1/"
 		done
 	fi
 
