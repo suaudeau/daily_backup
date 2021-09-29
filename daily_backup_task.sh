@@ -33,14 +33,20 @@ ${ECHO} "========================================="
 for config_file in $(ls "${SCRIPT_PATH}/cfg/"*.cfg); do
     native_dir=$(${GREP} '^NATIVE_DIR=' "${config_file}" | ${CUT} -d "=" -f 2-)
     working_dir=$(${GREP} '^WORKING_DIR=' "${config_file}" | ${CUT} -d "=" -f 2-)
-    excludes_file=$(${MKTEMP})
-    ${GREP} '^EXCLUDES=' "${config_file}" | ${CUT} -d "=" -f 2- > ${excludes_file}
-
+    #excludes_file=$(${MKTEMP})
+    #${GREP} '^EXCLUDES=' "${config_file}" | ${CUT} -d "=" -f 2- > ${excludes_file}
+    exclude_list=$(${GREP} '^EXCLUDES=' "${config_file}" | ${CUT} -d "=" -f 2-)
+    if [[ "${exclude_list}" =~ ^{ ]]; then
+        exclude_list=$exclude_list
+    else
+        exclude_list=$(echo $exclude_list | sed -e "s/ /','/g" | sed -e "s/^/{'/g" | sed -e "s/$/'}/g")
+    fi
+    
     if [[ ! -z "${native_dir}" ]]; then   #Copy only if native_dir is defined
         ${ECHO} "Config file: $(${BASENAME} $config_file) : ${native_dir} to ${working_dir}"
-        copy_from_native_to_working_copy "${native_dir}" "${working_dir}" "${excludes_file}"
+        copy_from_native_to_working_copy "${native_dir}" "${working_dir}" "${exclude_list}"
     fi
-    ${RM} ${excludes_file}   #Clean temp file
+    #${RM} ${excludes_file}   #Clean temp file
 done
 
 # -------------------------------------------------------
@@ -54,9 +60,15 @@ ${ECHO} "========================================="
 for config_file in $(ls "${SCRIPT_PATH}/cfg/"*.cfg); do
     working_dir=$(${GREP} '^WORKING_DIR=' "${config_file}" | ${CUT} -d "=" -f 2-)
     backup_dir=$(${GREP} '^BACKUP_DIR=' "${config_file}" | ${CUT} -d "=" -f 2-)
-    excludes_file=$(${MKTEMP})
+    #excludes_file=$(${MKTEMP})
     backup_selection=$(${GREP} '^BACKUP_SELECTION=' "${config_file}" | ${CUT} -d "=" -f 2-)
-    ${GREP} '^EXCLUDES=' "${config_file}" | ${CUT} -d "=" -f 2- > ${excludes_file}
+    #${GREP} '^EXCLUDES=' "${config_file}" | ${CUT} -d "=" -f 2- > ${excludes_file}
+    exclude_list=$(${GREP} '^EXCLUDES=' "${config_file}" | ${CUT} -d "=" -f 2-)
+    if [[ "${exclude_list}" =~ ^{ ]]; then
+        exclude_list=$exclude_list
+    else
+        exclude_list=$(echo $exclude_list | sed -e "s/ /','/g" | sed -e "s/^/{'/g" | sed -e "s/$/'}/g")
+    fi
     if [[ ! -z "${backup_dir}" ]]; then   #do only if backup_dir is defined
         typeOfDailyJob=$(getTypeOfDailyJob ${backup_dir})
         typeOfMonthlyJob=$(getTypeOfMonthlyJob ${backup_dir})
@@ -71,13 +83,13 @@ for config_file in $(ls "${SCRIPT_PATH}/cfg/"*.cfg); do
         fi
 
         if [ $typeOfDailyJob == "day" ]; then
-            dailyJob "${working_dir}" "${backup_dir}" "${excludes_file}" "${backup_selection}"
+            dailyJob "${working_dir}" "${backup_dir}" "${exclude_list}" "${backup_selection}"
         elif [ $typeOfDailyJob == "week" ]; then
-            dailyJob "${working_dir}" "${backup_dir}" "${excludes_file}" "${backup_selection}"
+            dailyJob "${working_dir}" "${backup_dir}" "${exclude_list}" "${backup_selection}"
 			weeklyJob "${backup_dir}"
         fi
     fi
-    ${RM} ${excludes_file}   #Clean temp file
+    #${RM} ${excludes_file}   #Clean temp file
 done
 
 # -------------------------------------------------------
