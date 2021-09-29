@@ -18,7 +18,7 @@
 #               ---------------------------------------
 #                   -> isDirectory [login@host:]pathToTest
 #                   -> createDirectory [login@host:]pathToCreate
-#                   -> updateDirectory [login1@host1:]source_path [login2@host2:]destination_path exclude_file
+#                   -> updateDirectory [login1@host1:]source_path [login2@host2:]destination_path exclude_list
 #
 #               local manipulation of files :
 #               -----------------------------
@@ -41,6 +41,7 @@
 #              | 1.0     | 30.05.2016 | First commit into Github.
 #              | 1.1     | 31.05.2016 | Improve doc and add verbose_info
 #              | 1.9     | 28.09.2021 | Add parameter BACKUP_SELECTION to cfg file
+#              | 1.10    | 29.09.2021 | Permit exclude dirs from backup |
 #
 #===================================================================================
 #------ Commandes utilisées par ce script ----
@@ -190,7 +191,7 @@ createDirectory() {
 #                                   (peut être de la forme login@host:path)
 # PARAMETER  2:  destination_path : chemin destination
 #                                   (peut être de la forme login@host:path)
-# PARAMETER  3:  exclude_file     : Fichier listant les fichiers à exclure
+# PARAMETER  3:  exclude_list     : Liste des fichiers à exclure
 #===============================================================================
 updateDirectory() {
     #arguments cannot be empty ==> die
@@ -228,17 +229,17 @@ updateDirectory() {
             if [[ "${login_host1}" == "${login_host2}" ]]; then
                 #Both on the same remote
                 local path2=$(${ECHO} "${REPERTOIRE_DESTINATION}" | ${CUT} -d ':' -f 2)
-                verbose_info "-->"${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude-from=\"${EXCLUDES}\" \"${path1}/\" \"${path2}/\""
-                ${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude-from=\"${EXCLUDES}\" \"${path1}/\" \"${path2}/\""
+                verbose_info "-->"${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude=\"${EXCLUDES}\" \"${path1}/\" \"${path2}/\""
+                ${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude=\"${EXCLUDES}\" \"${path1}/\" \"${path2}/\""
                 return ${?}
             fi
-            verbose_info "-->"${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude-from=\"${EXCLUDES}\" \"${path1}/\" \"${REPERTOIRE_DESTINATION}/\""
-            ${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude-from=\"${EXCLUDES}\" \"${path1}/\" \"${REPERTOIRE_DESTINATION}/\""
+            verbose_info "-->"${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude=\"${EXCLUDES}\" \"${path1}/\" \"${REPERTOIRE_DESTINATION}/\""
+            ${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude=\"${EXCLUDES}\" \"${path1}/\" \"${REPERTOIRE_DESTINATION}/\""
             return ${?}
         fi
     fi
-    verbose_info "-->${RSYNC} -av --ignore-existing --exclude-from=\"${EXCLUDES}\" \"${REPERTOIRE_SOURCE}/\" \"${REPERTOIRE_DESTINATION}/\""
-    ${RSYNC} -av --ignore-existing --exclude-from="${EXCLUDES}" "${REPERTOIRE_SOURCE}/" "${REPERTOIRE_DESTINATION}/"
+    verbose_info "-->${RSYNC} -av --ignore-existing --exclude=\"${EXCLUDES}\" \"${REPERTOIRE_SOURCE}/\" \"${REPERTOIRE_DESTINATION}/\""
+    ${RSYNC} -av --ignore-existing --exclude="${EXCLUDES}" "${REPERTOIRE_SOURCE}/" "${REPERTOIRE_DESTINATION}/"
     return ${?}
 }
 
