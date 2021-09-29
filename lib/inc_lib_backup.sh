@@ -22,6 +22,7 @@
 #              | ------- | ---------- | --------------------------------------------
 #              | 1.0     | 30.05.2016 | Separation of inc_lib from inc_lib_backup
 #              | 1.9     | 28.09.2021 | Add parameter BACKUP_SELECTION to cfg file
+#              | 1.10    | 29.09.2021 | Permit exclude dirs from backup |
 #
 #===================================================================================
 
@@ -56,10 +57,10 @@ get_last_timestamp() {
 #         NAME:  copy_from_native_to_working_copy
 #  DESCRIPTION:  Copie des nouveaux fichiers du dossier native vers le
 #                dossier working_copy
-#        USAGE:  copy_from_native_to_working_copy source destination exclude_file
+#        USAGE:  copy_from_native_to_working_copy source destination exclude_list
 # PARAMETER  1:  source      : chemin du native directory
 # PARAMETER  2:  destination : chemin du working directory
-# PARAMETER  3:  exclude_file : fichier contenant la liste des fichiers à exclure
+# PARAMETER  3:  exclude_list : liste des fichiers à exclure
 # RETURN VALUE:   0 if OK
 #                -1 if NOK
 #===============================================================================
@@ -70,7 +71,7 @@ copy_from_native_to_working_copy() {
     fi
     local REPERTOIRE_SOURCE="${1}"
     local REPERTOIRE_DESTINATION="${2}"
-    local EXCLUDES_FILE="${3}"
+    local EXCLUDES_LIST="${3}"
 
     ${ECHO} "Copie des nouveaux fichiers de \"${REPERTOIRE_SOURCE}\" vers \"${REPERTOIRE_DESTINATION}\"."
 
@@ -88,7 +89,7 @@ copy_from_native_to_working_copy() {
         ${ECHO} "Création du répertoire de destination (${REPERTOIRE_DESTINATION})"
     fi
 
-    updateDirectory "${REPERTOIRE_SOURCE}" "${REPERTOIRE_DESTINATION}" "${EXCLUDES_FILE}"
+    updateDirectory "${REPERTOIRE_SOURCE}" "${REPERTOIRE_DESTINATION}" "${EXCLUDES_LIST}"
 
     # update the mtime of destination dir to reflect the update time
     #  and add a time stamp in file
@@ -412,12 +413,12 @@ dailyJob() {
     #               --stats Affiche les statistiques sur les fichiers.
     #               --delete-excluded Efface aussi les fichiers exclus de la destination
     if [[ -z "${4}" || "*" == "${4}" ]]; then
-		${ECHO} "-->${RSYNC} -va --delete --force --delete-excluded --exclude-from="${EXCLUDES}" \"${REPERTOIRE_SOURCE}/\" \"${REPERTOIRE_DESTINATION}/day-1/\"" ;
-		${RSYNC} -av --delete --force --delete-excluded --exclude-from="${EXCLUDES}" "${REPERTOIRE_SOURCE}/" "${REPERTOIRE_DESTINATION}/day-1/"
+		${ECHO} "-->${RSYNC} -va --delete --force --delete-excluded --exclude="${EXCLUDES}" \"${REPERTOIRE_SOURCE}/\" \"${REPERTOIRE_DESTINATION}/day-1/\"" ;
+		${RSYNC} -av --delete --force --delete-excluded --exclude="${EXCLUDES}" "${REPERTOIRE_SOURCE}/" "${REPERTOIRE_DESTINATION}/day-1/"
 	else
 		for dir in ${4}; do
-			${ECHO} "-->${RSYNC} -va --delete --force --delete-excluded --exclude-from="${EXCLUDES}" \"${REPERTOIRE_SOURCE}/${dir}\" \"${REPERTOIRE_DESTINATION}/day-1/\"" ;
-			${RSYNC} -av --delete --force --delete-excluded --exclude-from="${EXCLUDES}" "${REPERTOIRE_SOURCE}/${dir}" "${REPERTOIRE_DESTINATION}/day-1/"
+			${ECHO} "-->${RSYNC} -va --delete --force --delete-excluded --exclude="${EXCLUDES}" \"${REPERTOIRE_SOURCE}/${dir}\" \"${REPERTOIRE_DESTINATION}/day-1/\"" ;
+			${RSYNC} -av --delete --force --delete-excluded --exclude="${EXCLUDES}" "${REPERTOIRE_SOURCE}/${dir}" "${REPERTOIRE_DESTINATION}/day-1/"
 		done
 	fi
 
