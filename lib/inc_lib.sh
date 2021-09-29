@@ -229,17 +229,17 @@ updateDirectory() {
             if [[ "${login_host1}" == "${login_host2}" ]]; then
                 #Both on the same remote
                 local path2=$(${ECHO} "${REPERTOIRE_DESTINATION}" | ${CUT} -d ':' -f 2)
-                verbose_info "-->"${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude=\"${EXCLUDES}\" \"${path1}/\" \"${path2}/\""
-                ${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude=\"${EXCLUDES}\" \"${path1}/\" \"${path2}/\""
+                verbose_info "-->"${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude=${EXCLUDES} \"${path1}/\" \"${path2}/\""
+                ${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude=${EXCLUDES} \"${path1}/\" \"${path2}/\""
                 return ${?}
             fi
-            verbose_info "-->"${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude=\"${EXCLUDES}\" \"${path1}/\" \"${REPERTOIRE_DESTINATION}/\""
-            ${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude=\"${EXCLUDES}\" \"${path1}/\" \"${REPERTOIRE_DESTINATION}/\""
+            verbose_info "-->"${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude=${EXCLUDES} \"${path1}/\" \"${REPERTOIRE_DESTINATION}/\""
+            ${SSH} "${login_host1}" "${RSYNC} -av --ignore-existing --exclude=${EXCLUDES} \"${path1}/\" \"${REPERTOIRE_DESTINATION}/\""
             return ${?}
         fi
     fi
-    verbose_info "-->${RSYNC} -av --ignore-existing --exclude=\"${EXCLUDES}\" \"${REPERTOIRE_SOURCE}/\" \"${REPERTOIRE_DESTINATION}/\""
-    ${RSYNC} -av --ignore-existing --exclude="${EXCLUDES}" "${REPERTOIRE_SOURCE}/" "${REPERTOIRE_DESTINATION}/"
+    verbose_info "-->${RSYNC} -av --ignore-existing --exclude=${EXCLUDES} \"${REPERTOIRE_SOURCE}/\" \"${REPERTOIRE_DESTINATION}/\""
+    ${RSYNC} -av --ignore-existing --exclude=${EXCLUDES} "${REPERTOIRE_SOURCE}/" "${REPERTOIRE_DESTINATION}/"
     return ${?}
 }
 
