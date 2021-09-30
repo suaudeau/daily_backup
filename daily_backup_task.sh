@@ -18,9 +18,9 @@
 VERBOSE_INFO=true
 
 # make sure we're running as root
-if [ $(${ID} -u) != 0 ]; then
-    ${ECHO} "Sorry, must be root.  Exiting..."; exit;
-fi
+#if [ $(${ID} -u) != 0 ]; then
+#    ${ECHO} "Sorry, must be root.  Exiting..."; exit;
+#fi
 
 ${ECHO} "$(${DATE} '+%a %d %B %T') : BEGIN backup_and_rotate.sh \"${1}\"" >> "${CRON_LOG_FILE}"
 
@@ -36,7 +36,7 @@ for config_file in $(ls "${SCRIPT_PATH}/cfg/"*.cfg); do
     #excludes_file=$(${MKTEMP})
     #${GREP} '^EXCLUDES=' "${config_file}" | ${CUT} -d "=" -f 2- > ${excludes_file}
     exclude_list=$(${GREP} '^EXCLUDES=' "${config_file}" | ${CUT} -d "=" -f 2-)
-    exclude_options=$(echo $exclude_list | sed -e "s/ /' '--exclude=/g" | sed -e "s/^/'--exclude=/g" | sed -e "s/$/'/g")
+    exclude_options=$(echo $exclude_list | sed -e "s/ / --exclude=/g" | sed -e "s/^/--exclude=/g" )
     
     if [[ ! -z "${native_dir}" ]]; then   #Copy only if native_dir is defined
         ${ECHO} "Config file: $(${BASENAME} $config_file) : ${native_dir} to ${working_dir}"
@@ -60,7 +60,7 @@ for config_file in $(ls "${SCRIPT_PATH}/cfg/"*.cfg); do
     backup_selection=$(${GREP} '^BACKUP_SELECTION=' "${config_file}" | ${CUT} -d "=" -f 2-)
     #${GREP} '^EXCLUDES=' "${config_file}" | ${CUT} -d "=" -f 2- > ${excludes_file}
     exclude_list=$(${GREP} '^EXCLUDES=' "${config_file}" | ${CUT} -d "=" -f 2-)
-    exclude_options=$(echo $exclude_list | sed -e "s/ /' '--exclude=/g" | sed -e "s/^/'--exclude=/g" | sed -e "s/$/'/g")
+    exclude_options=$(echo $exclude_list | sed -e "s/ / --exclude=/g" | sed -e "s/^/--exclude=/g" )
 
     if [[ ! -z "${backup_dir}" ]]; then   #do only if backup_dir is defined
         typeOfDailyJob=$(getTypeOfDailyJob ${backup_dir})
