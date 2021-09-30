@@ -33,8 +33,6 @@ ${ECHO} "========================================="
 for config_file in $(ls "${SCRIPT_PATH}/cfg/"*.cfg); do
     native_dir=$(${GREP} '^NATIVE_DIR=' "${config_file}" | ${CUT} -d "=" -f 2-)
     working_dir=$(${GREP} '^WORKING_DIR=' "${config_file}" | ${CUT} -d "=" -f 2-)
-    #excludes_file=$(${MKTEMP})
-    #${GREP} '^EXCLUDES=' "${config_file}" | ${CUT} -d "=" -f 2- > ${excludes_file}
     exclude_list=$(${GREP} '^EXCLUDES=' "${config_file}" | ${CUT} -d "=" -f 2-)
     exclude_options=$(echo $exclude_list | sed -e "s/ / --exclude=/g" | sed -e "s/^/--exclude=/g" )
     
@@ -42,7 +40,6 @@ for config_file in $(ls "${SCRIPT_PATH}/cfg/"*.cfg); do
         ${ECHO} "Config file: $(${BASENAME} $config_file) : ${native_dir} to ${working_dir}"
         copy_from_native_to_working_copy "${native_dir}" "${working_dir}" "${exclude_options}"
     fi
-    #${RM} ${excludes_file}   #Clean temp file
 done
 
 # -------------------------------------------------------
@@ -56,9 +53,7 @@ ${ECHO} "========================================="
 for config_file in $(ls "${SCRIPT_PATH}/cfg/"*.cfg); do
     working_dir=$(${GREP} '^WORKING_DIR=' "${config_file}" | ${CUT} -d "=" -f 2-)
     backup_dir=$(${GREP} '^BACKUP_DIR=' "${config_file}" | ${CUT} -d "=" -f 2-)
-    #excludes_file=$(${MKTEMP})
     backup_selection=$(${GREP} '^BACKUP_SELECTION=' "${config_file}" | ${CUT} -d "=" -f 2-)
-    #${GREP} '^EXCLUDES=' "${config_file}" | ${CUT} -d "=" -f 2- > ${excludes_file}
     exclude_list=$(${GREP} '^EXCLUDES=' "${config_file}" | ${CUT} -d "=" -f 2-)
     exclude_options=$(echo $exclude_list | sed -e "s/ / --exclude=/g" | sed -e "s/^/--exclude=/g" )
 
@@ -82,7 +77,6 @@ for config_file in $(ls "${SCRIPT_PATH}/cfg/"*.cfg); do
 			weeklyJob "${backup_dir}"
         fi
     fi
-    #${RM} ${excludes_file}   #Clean temp file
 done
 
 # -------------------------------------------------------
