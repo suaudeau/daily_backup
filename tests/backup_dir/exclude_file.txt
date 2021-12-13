@@ -1,9 +1,0 @@
-*~
-.svn/
-.thumbnails/
-.Trash/
-*.tmp
-lost+found/
-.cache/
-.beagle/
-*.noworking/
